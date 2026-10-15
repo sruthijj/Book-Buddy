@@ -1,8 +1,8 @@
 import React from 'react';
-import { BookOpen, LogOut, User as UserIcon, Plus } from 'lucide-react';
+import { BookOpen, LogOut, User as UserIcon, Plus, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
-export default function Navbar({ onOpenAuth, onOpenAddBook }) {
+export default function Navbar({ onOpenAuth, onOpenAddBook, onOpenAIStudio }) {
   const { user, isAuthenticated, logout } = useAuth();
 
   return (
@@ -10,22 +10,11 @@ export default function Navbar({ onOpenAuth, onOpenAddBook }) {
       <div className="header-inner">
         {/* Brand Logo & Name */}
         <a href="/" className="brand-logo">
-          <div 
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: '34px',
-              height: '34px',
-              borderRadius: 'var(--radius-sm)',
-              backgroundColor: 'var(--brand-primary)',
-              color: 'var(--text-inverse)'
-            }}
-          >
-            <BookOpen size={18} strokeWidth={2.2} />
+          <div className="brand-icon-box">
+            <BookOpen size={19} strokeWidth={2.4} />
           </div>
           <span className="brand-title">Book Buddy</span>
-          <span className="brand-badge">Sanctuary</span>
+          <span className="brand-badge">SANCTUARY</span>
         </a>
 
         {/* Right Nav Actions */}
@@ -37,11 +26,12 @@ export default function Navbar({ onOpenAuth, onOpenAddBook }) {
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.5rem',
-                  padding: '0.35rem 0.65rem',
-                  borderRadius: 'var(--radius-sm)',
-                  backgroundColor: 'var(--bg-subtle)',
-                  border: '1px solid var(--border-subtle)'
+                  gap: '0.55rem',
+                  padding: '0.35rem 0.85rem',
+                  borderRadius: 'var(--radius-full)',
+                  backgroundColor: 'rgba(255, 255, 255, 0.85)',
+                  border: '1px solid rgba(0, 0, 0, 0.08)',
+                  boxShadow: 'var(--shadow-sm)'
                 }}
               >
                 <div 
@@ -49,14 +39,15 @@ export default function Navbar({ onOpenAuth, onOpenAddBook }) {
                     width: '24px',
                     height: '24px',
                     borderRadius: '50%',
-                    backgroundColor: 'var(--brand-primary)',
-                    color: 'var(--text-inverse)',
+                    background: 'var(--apple-blue-gradient)',
+                    color: '#FFFFFF',
                     fontSize: '0.75rem',
                     fontWeight: 700,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    textTransform: 'uppercase'
+                    textTransform: 'uppercase',
+                    boxShadow: 'var(--apple-blue-glow)'
                   }}
                 >
                   {user?.username ? user.username.charAt(0) : 'U'}
@@ -65,6 +56,19 @@ export default function Navbar({ onOpenAuth, onOpenAddBook }) {
                   {user?.username}
                 </span>
               </div>
+
+              {/* AI Companion Studio CTA */}
+              {onOpenAIStudio && (
+                <button
+                  type="button"
+                  className="btn btn-ai btn-sm"
+                  onClick={onOpenAIStudio}
+                  title="Open AI Reading Companion"
+                >
+                  <Sparkles size={14} />
+                  <span>AI Companion</span>
+                </button>
+              )}
 
               {/* Add Book CTA */}
               {onOpenAddBook && (
