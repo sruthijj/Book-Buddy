@@ -145,3 +145,87 @@ class TimelinePoint(BaseModel):
     date: str
     pages_read: int
     sessions_count: int
+
+
+# ==========================================
+# ISBN & EXTERNAL INTEGRATIONS SCHEMAS
+# ==========================================
+
+class ISBNBookLookup(BaseModel):
+    """Normalized response schema for external ISBN lookups via Open Library."""
+    isbn: str
+    title: str
+    author: str
+    genre: str
+    total_pages: int
+    cover_image_url: Optional[str] = None
+    publish_year: Optional[str] = None
+
+
+# ==========================================
+# AI & PREDICTIVE SCHEMAS
+# ==========================================
+
+class AIRecommendationItem(BaseModel):
+    """Individual book recommendation with personalized reason."""
+    title: str
+    author: str
+    genre: str
+    reason: str
+
+
+class AIRecommendRequest(BaseModel):
+    """Optional payload for requesting tailored recommendations."""
+    preferred_genres: Optional[List[str]] = None
+    mood: Optional[str] = None
+
+
+class AIRecommendResponse(BaseModel):
+    """List of AI book recommendations."""
+    recommendations: List[AIRecommendationItem]
+    source: str = Field(description="'gemini-1.5-flash' or 'smart-heuristics-engine'")
+
+
+class AISummarizeRequest(BaseModel):
+    """Request payload to summarize reading notes."""
+    notes: str = Field(..., min_length=5, description="User's personal reading notes")
+    book_title: Optional[str] = None
+    author: Optional[str] = None
+
+
+class AISummarizeResponse(BaseModel):
+    """Concise AI summary with bulleted key takeaways."""
+    summary: str
+    key_takeaways: List[str]
+    source: str
+
+
+class AIReviewRequest(BaseModel):
+    """Request payload to generate a publication-style book review."""
+    book_title: str
+    author: str
+    rating: int = Field(..., ge=1, le=5)
+    notes: Optional[str] = None
+
+
+class AIReviewResponse(BaseModel):
+    """Generated book review and catchy headline."""
+    headline: str
+    review: str
+    source: str
+
+
+class CompletionPrediction(BaseModel):
+    """Estimated reading completion date and velocity analytics."""
+    book_id: int
+    book_title: str
+    current_page: int
+    total_pages: int
+    pages_remaining: int
+    average_daily_pace: float
+    days_remaining: int
+    estimated_completion_date: str
+    confidence_level: str
+    status_message: str
+
+
