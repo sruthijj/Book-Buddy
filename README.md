@@ -10,20 +10,20 @@ Book Buddy allows readers to catalog physical and digital books, track page-by-p
 
 ```mermaid
 graph TD
-    User["👤 Reader"] -->|Interacts with UI| Frontend["🎨 React 19 + Vite Frontend (Port 5173)"]
-    Frontend -->|JWT Authenticated REST Requests| API["⚡ FastAPI Backend (Port 8000)"]
+    User["👤 Reader"] -->|"Interacts with UI"| Frontend["🎨 React 19 + Vite Frontend"]
+    Frontend -->|"JWT REST Requests"| API["⚡ FastAPI Backend"]
     
-    subgraph Backend Services
-        API -->|ORM Transactions| DB[("🗄️ SQLite Database (SQLAlchemy 2.0)")]
-        API -->|Async HTTP Client (HTTPX)| OpenLibrary["🌐 Open Library API (ISBN Lookup)"]
-        API -->|Inference Engine| AI["✨ AI Reading Assistant"]
+    subgraph BackendServices["Backend Services"]
+        API -->|"ORM Transactions"| DB[("🗄️ SQLite Database")]
+        API -->|"Async HTTP Client"| OpenLibrary["🌐 Open Library API"]
+        API -->|"Inference Engine"| AI["✨ AI Reading Assistant"]
     end
 
-    subgraph Frontend Core Modules
+    subgraph FrontendModules["Frontend Core Modules"]
         Frontend --> Shelf["🪵 3D Honey-Oak Bookshelf"]
-        Frontend --> Stats["📊 Recharts Timeline & Genre Analytics"]
+        Frontend --> Stats["📊 Recharts Timeline & Analytics"]
         Frontend --> ISBN["🔍 1-Click ISBN Scanner"]
-        Frontend --> Modal["📝 Reading Session & Reflection Modals"]
+        Frontend --> Modal["📝 Reading Session & Reflections"]
     end
 ```
 
