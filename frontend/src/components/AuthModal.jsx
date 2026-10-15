@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { X, Lock, Mail, User, AlertCircle, ArrowRight, Sparkles } from 'lucide-react';
+import { X, Lock, Mail, User, AlertCircle, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export default function AuthModal({ isOpen, onClose }) {
-  const { login, register, demoLogin, authError, setAuthError } = useAuth();
+  const { login, register, authError, setAuthError } = useAuth();
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -154,7 +154,7 @@ export default function AuthModal({ isOpen, onClose }) {
                   required
                   className="form-input"
                   style={{ paddingLeft: '2.25rem' }}
-                  placeholder="e.g. sruthij"
+                  placeholder="Enter your username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   autoFocus
@@ -175,7 +175,7 @@ export default function AuthModal({ isOpen, onClose }) {
                     required
                     className="form-input"
                     style={{ paddingLeft: '2.25rem' }}
-                    placeholder="sruthij1221@gmail.com"
+                    placeholder="Enter your email address"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
@@ -196,7 +196,7 @@ export default function AuthModal({ isOpen, onClose }) {
                   minLength={6}
                   className="form-input"
                   style={{ paddingLeft: '2.25rem' }}
-                  placeholder="At least 6 characters"
+                  placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
@@ -217,23 +217,6 @@ export default function AuthModal({ isOpen, onClose }) {
               {!loading && <ArrowRight size={16} />}
             </button>
           </form>
-
-          {/* Recruiter / Reviewer Fast-Track Shortcut */}
-          <div style={{ marginTop: '1.25rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border-subtle)', textAlign: 'center' }}>
-            <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '0.65rem' }}>
-              Evaluating for SayOne Tech hiring process?
-            </p>
-            <button
-              type="button"
-              className="btn btn-secondary btn-sm"
-              style={{ width: '100%', fontSize: '0.8125rem' }}
-              onClick={handleDemoLogin}
-              disabled={loading}
-            >
-              <Sparkles size={14} style={{ color: 'var(--brand-accent)' }} />
-              <span>1-Click Reviewer Demo Login</span>
-            </button>
-          </div>
         </div>
       </div>
     </div>
