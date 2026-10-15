@@ -9,8 +9,10 @@ from sqlalchemy import create_engine, event
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import declarative_base, sessionmaker, Session
 
-# SQLite database file stored inside the backend directory
+# Database URL: supports local SQLite, persistent disk mounts, and cloud PostgreSQL
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./book_buddy.db")
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
 # check_same_thread=False allows FastAPI multi-threaded request workers to access SQLite
 engine = create_engine(
