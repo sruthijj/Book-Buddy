@@ -1,259 +1,208 @@
 import React, { useState } from 'react';
-import { BookOpen, Star, TrendingUp, CheckCircle, Edit3, Trash2, Bookmark } from 'lucide-react';
+import { BookOpen, Star, TrendingUp, Edit3, Trash2, Feather, ExternalLink } from 'lucide-react';
 
-// Apple Modern curated book cover gradients
-const BOOK_COVER_PALETTES = [
-  { bg: 'linear-gradient(145deg, #007AFF 0%, #004085 100%)', accent: '#D0E2FF' }, // Pacific Blue
-  { bg: 'linear-gradient(145deg, #1D1D1F 0%, #3A3A3C 100%)', accent: '#E5E5EA' }, // Space Gray
-  { bg: 'linear-gradient(145deg, #28A745 0%, #155724 100%)', accent: '#D4EDDA' }, // Forest Green
-  { bg: 'linear-gradient(145deg, #FF2D55 0%, #A30029 100%)', accent: '#FCE4EC' }, // Crimson Rose
-  { bg: 'linear-gradient(145deg, #AF52DE 0%, #5856D6 100%)', accent: '#F3E5F5' }, // Royal Purple
-];
-
-export default function BookCard({ book, onUpdateProgress, onEdit, onDelete, onStartReading }) {
+export default function BookCard({ 
+  book, 
+  onSelect,
+  onUpdateProgress, 
+  onEdit, 
+  onDelete, 
+  onStartReading 
+}) {
   const [imageError, setImageError] = useState(false);
+  const [showFullNotes, setShowFullNotes] = useState(false);
+
   const isReading = book.status === 'reading';
   const isCompleted = book.status === 'completed';
   const isWishlist = book.status === 'wishlist';
 
-  // Compute progress percentage safely
+  // Calculate percentage safely
   const progressPct = book.total_pages > 0 
     ? Math.min(100, Math.round((book.current_page / book.total_pages) * 100)) 
     : 0;
 
-  // Deterministic palette for artistic spine
-  const paletteIndex = Math.abs((book.id || book.title.length || 0)) % BOOK_COVER_PALETTES.length;
-  const palette = BOOK_COVER_PALETTES[paletteIndex];
-
   return (
     <div 
-      className="card book-card" 
-      style={{
-        padding: '1.35rem',
-        display: 'flex',
-        gap: '1.35rem',
-        position: 'relative',
-        transition: 'all 240ms cubic-bezier(0.16, 1, 0.3, 1)'
-      }}
+      className="shelf-book-item"
+      onClick={() => onSelect && onSelect(book)}
+      title={`Click to open "${book.title}" & read reflection notes`}
     >
-      {/* 3D Physical Paperback Book Cover */}
-      <div className="book-cover-frame">
+      {/* 3D Physical Book Standing on the Oak Shelf */}
+      <div className="physical-book-3d">
+        {/* Diagonal Corner Ribbon (Exact Apple iBooks Style) */}
+        <div className={`corner-ribbon-badge ${book.status}`}>
+          {isReading ? 'Reading' : (isCompleted ? 'Finished' : 'Wishlist')}
+        </div>
+
+        {/* 3D Spine Crease Overlay */}
+        <div className="book-spine-crease"></div>
+
+        {/* Book Cover Image */}
         {book.cover_image_url && !imageError ? (
           <img 
             src={book.cover_image_url} 
             alt={book.title}
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            className="book-cover-img"
             onError={() => setImageError(true)}
           />
         ) : (
-          /* Artistic Typographic Cover */
+          /* Vintage Hardcover Fallback */
           <div 
-            className="book-cover-artistic"
-            style={{ background: palette.bg }}
+            style={{
+              width: '100%',
+              height: '100%',
+              background: 'linear-gradient(135deg, #4d260c 0%, #2b1304 100%)',
+              padding: '1.25rem 0.85rem',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              textAlign: 'center',
+              border: '2px solid #6e3914'
+            }}
           >
-            <div style={{ display: 'flex', justifyContent: 'center', opacity: 0.9 }}>
-              <BookOpen size={17} color={palette.accent} />
+            <div style={{ margin: '0 auto', opacity: 0.9 }}>
+              <BookOpen size={24} color="#fce2b8" />
             </div>
-
-            <div style={{ padding: '0 0.2rem' }}>
-              <span 
-                style={{
-                  fontFamily: 'var(--font-serif)',
-                  fontSize: '0.825rem',
-                  fontWeight: 700,
-                  color: '#FFFFFF',
-                  lineHeight: 1.25,
-                  display: '-webkit-box',
-                  WebkitLineClamp: 3,
-                  WebkitBoxOrient: 'vertical',
-                  overflow: 'hidden',
-                  textShadow: '0 2px 4px rgba(0,0,0,0.4)'
-                }}
-              >
-                {book.title}
-              </span>
-            </div>
-
-            <div style={{ borderTop: `1px solid ${palette.accent}44`, paddingTop: '0.35rem' }}>
-              <span 
-                style={{
-                  fontSize: '0.625rem',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.06em',
-                  color: palette.accent,
-                  display: 'block',
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis'
-                }}
-              >
-                {book.author}
-              </span>
-            </div>
+            <p 
+              style={{
+                fontFamily: 'var(--font-serif)',
+                fontSize: '0.875rem',
+                fontWeight: 700,
+                color: '#fff5e6',
+                lineHeight: 1.25
+              }}
+            >
+              {book.title}
+            </p>
+            <p 
+              style={{
+                fontSize: '0.7rem',
+                textTransform: 'uppercase',
+                letterSpacing: '0.06em',
+                color: '#e5be85'
+              }}
+            >
+              {book.author}
+            </p>
           </div>
         )}
-      </div>
 
-      {/* Book Information & Progress Column */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-        <div>
-          {/* Header Row: Status Pill & Action Buttons */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.45rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span className={`status-pill ${book.status}`}>
-                {isReading && <span className="pulse-dot"></span>}
-                {isCompleted && <CheckCircle size={12} />}
-                {isWishlist && <Bookmark size={12} />}
-                <span style={{ textTransform: 'capitalize' }}>
-                  {isReading ? 'Reading' : (isCompleted ? 'Finished' : 'Wishlist')}
-                </span>
-              </span>
+        {/* Subtle Bottom Reading Progress Stripe directly on Book */}
+        {isReading && (
+          <div className="book-progress-strip">
+            <div className="book-progress-strip-fill" style={{ width: `${progressPct}%` }}></div>
+          </div>
+        )}
 
-              <span 
-                style={{
-                  fontSize: '0.725rem',
-                  fontWeight: 600,
-                  color: 'var(--text-secondary)',
-                  backgroundColor: 'rgba(0, 0, 0, 0.05)',
-                  padding: '0.2rem 0.6rem',
-                  borderRadius: 'var(--radius-full)',
-                  border: '1px solid rgba(0, 0, 0, 0.06)'
-                }}
-              >
-                {book.genre}
-              </span>
-            </div>
-
-            {/* Quick Action Buttons (Edit / Delete) */}
-            <div style={{ display: 'flex', gap: '0.25rem' }}>
-              <button
-                type="button"
-                className="btn btn-ghost btn-sm"
-                onClick={() => onEdit(book)}
-                title="Edit Book Details"
-                style={{ padding: '0.35rem', color: 'var(--text-secondary)' }}
-              >
-                <Edit3 size={15} />
-              </button>
-              <button
-                type="button"
-                className="btn btn-ghost btn-sm"
-                onClick={() => onDelete(book.id, book.title)}
-                title="Remove Volume"
-                style={{ padding: '0.35rem', color: '#FF3B30' }}
-              >
-                <Trash2 size={15} />
-              </button>
-            </div>
+        {/* Rich Hover Overlay / Inspection Panel */}
+        <div className="book-hover-actions">
+          {/* Header: Genre & Star Rating */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span className="book-hover-genre">{book.genre || 'General'}</span>
+            {book.rating && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.15rem' }}>
+                <Star size={12} fill="#ffd700" color="#ffd700" />
+                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#ffd700' }}>{book.rating}.0</span>
+              </div>
+            )}
           </div>
 
           {/* Title & Author */}
-          <h3 
-            style={{ 
-              fontSize: '1.25rem', 
-              fontWeight: 700, 
-              lineHeight: 1.3,
-              marginBottom: '0.25rem',
-              color: 'var(--text-primary)'
-            }}
-          >
-            {book.title}
-          </h3>
-          <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '0.7rem' }}>
-            by <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{book.author}</span>
-          </p>
+          <div>
+            <h4 className="book-hover-title" title={book.title}>{book.title}</h4>
+            <p className="book-hover-author">by {book.author}</p>
+          </div>
 
-          {/* Star Rating Display */}
-          {book.rating && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', marginBottom: '0.7rem' }}>
-              {[1, 2, 3, 4, 5].map((star) => (
-                <Star
-                  key={star}
-                  size={14}
-                  fill={star <= book.rating ? '#FF9500' : 'transparent'}
-                  color={star <= book.rating ? '#FF9500' : '#D1D1D6'}
-                />
-              ))}
-              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-primary)', marginLeft: '0.35rem' }}>
-                {book.rating}.0
-              </span>
-            </div>
-          )}
-
-          {/* Personal Reflection Notes Snippet */}
-          {book.notes && (
-            <div 
-              style={{
-                fontSize: '0.8125rem',
-                fontStyle: 'italic',
-                color: 'var(--text-secondary)',
-                backgroundColor: 'rgba(0, 122, 255, 0.04)',
-                padding: '0.5rem 0.85rem',
-                borderRadius: 'var(--radius-sm)',
-                borderLeft: '3px solid var(--apple-blue)',
-                marginBottom: '0.75rem',
-                display: '-webkit-box',
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: 'vertical',
-                overflow: 'hidden',
-                lineHeight: 1.5
-              }}
-            >
-              "{book.notes}"
-            </div>
-          )}
-        </div>
-
-        {/* Footer / Reading Progress Bar & Action */}
-        <div style={{ paddingTop: '0.75rem', borderTop: '1px solid rgba(0, 0, 0, 0.06)' }}>
-          {isWishlist ? (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                {book.total_pages > 0 ? `${book.total_pages} planned pages` : 'In your wishlist'}
-              </span>
-              <button
-                type="button"
-                className="btn btn-secondary btn-sm"
-                onClick={() => onStartReading(book)}
-              >
-                <span>Start Reading</span>
-              </button>
-            </div>
-          ) : (
+          {/* Progress / Status */}
+          {isReading && (
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', marginBottom: '0.45rem' }}>
-                <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>
-                  {isCompleted ? 'Finished Volume' : 'Progress'}
-                </span>
-                <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>
-                  pg. {book.current_page} of {book.total_pages || '?'} ({progressPct}%)
-                </span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem', color: '#ffd700', marginBottom: '0.2rem', fontWeight: 700 }}>
+                <span>Reading</span>
+                <span>pg. {book.current_page} of {book.total_pages} ({progressPct}%)</span>
               </div>
-
-              <div className="progress-track" style={{ marginBottom: '0.75rem' }}>
-                <div 
-                  className={`progress-fill ${isCompleted ? 'completed' : ''}`} 
-                  style={{ width: `${progressPct}%` }}
-                ></div>
+              <div className="book-hover-progress-track">
+                <div className="book-hover-progress-fill" style={{ width: `${progressPct}%` }}></div>
               </div>
+            </div>
+          )}
 
-              {!isCompleted && (
-                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                  <button
-                    type="button"
-                    className="btn btn-secondary btn-sm"
-                    onClick={() => onUpdateProgress(book)}
-                    style={{ fontSize: '0.78rem', padding: '0.35rem 0.85rem' }}
-                  >
-                    <TrendingUp size={13} style={{ color: 'var(--apple-blue)' }} />
-                    <span>Log Daily Pages</span>
-                  </button>
-                </div>
+          {isCompleted && (
+            <div style={{ fontSize: '0.72rem', color: '#68d391', fontWeight: 700 }}>
+              ✓ Completed ({book.total_pages} pages)
+            </div>
+          )}
+
+          {isWishlist && (
+            <div style={{ fontSize: '0.72rem', color: '#fc8181', fontWeight: 700 }}>
+              🔖 In Wishlist ({book.total_pages || '?'} pages)
+            </div>
+          )}
+
+          {/* Reflection Notes Snippet */}
+          {book.notes && (
+            <div className="book-hover-notes">
+              <div style={!showFullNotes ? { display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' } : {}}>
+                "{book.notes}"
+              </div>
+              {book.notes.length > 50 && (
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); setShowFullNotes(!showFullNotes); }}
+                  style={{ background: 'none', border: 'none', color: '#ffd700', fontSize: '0.65rem', fontWeight: 700, padding: 0, marginTop: '0.15rem', cursor: 'pointer' }}
+                >
+                  {showFullNotes ? 'Less ↑' : 'More →'}
+                </button>
               )}
             </div>
           )}
+
+          {/* Quick Actions */}
+          <div className="book-hover-buttons" onClick={(e) => e.stopPropagation()}>
+            {isReading && (
+              <button
+                type="button"
+                className="btn btn-primary btn-sm"
+                onClick={(e) => { e.stopPropagation(); onUpdateProgress(book); }}
+                style={{ flex: 1, padding: '0.3rem 0.5rem', fontSize: '0.72rem' }}
+              >
+                <TrendingUp size={12} />
+                <span>Log Pages</span>
+              </button>
+            )}
+            {isWishlist && (
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm"
+                onClick={(e) => { e.stopPropagation(); onStartReading(book); }}
+                style={{ flex: 1, padding: '0.3rem 0.5rem', fontSize: '0.72rem' }}
+              >
+                <span>Start Reading</span>
+              </button>
+            )}
+            <button
+              type="button"
+              className="btn btn-secondary btn-sm"
+              onClick={(e) => { e.stopPropagation(); onEdit(book); }}
+              title="Edit Book Details"
+              style={{ padding: '0.3rem 0.45rem' }}
+            >
+              <Edit3 size={12} />
+            </button>
+            <button
+              type="button"
+              className="btn btn-secondary btn-sm"
+              onClick={(e) => { e.stopPropagation(); onDelete(book.id, book.title); }}
+              title="Remove Volume"
+              style={{ padding: '0.3rem 0.45rem', color: '#ff4d4d' }}
+            >
+              <Trash2 size={12} />
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* Realistic Oval Contact Shadow Cast Directly on the Oak Shelf Ledge */}
+      <div className="book-shelf-contact-shadow"></div>
     </div>
   );
 }

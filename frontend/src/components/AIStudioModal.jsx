@@ -175,7 +175,7 @@ export default function AIStudioModal({ isOpen, onClose, books = [], onBookAdded
             <Sparkles size={18} style={{ color: 'var(--brand-accent)' }} />
             <div>
               <h3 style={{ fontSize: '1.25rem', marginBottom: '0.1rem' }}>AI Reading Companion</h3>
-              <p style={{ fontSize: '0.8rem' }}>Powered by Google Gemini & Reading Pattern Intelligence</p>
+              <p style={{ fontSize: '0.8rem' }}>Powered by Advanced AI & Reading Pattern Intelligence</p>
             </div>
           </div>
           <button 
@@ -263,7 +263,7 @@ export default function AIStudioModal({ isOpen, onClose, books = [], onBookAdded
                 <div>
                   <h4 style={{ fontSize: '1.05rem', marginBottom: '0.2rem' }}>Personalized Literary Suggestions</h4>
                   <p style={{ fontSize: '0.825rem' }}>
-                    Gemini analyzes your library genres and ratings to recommend matching literature.
+                    Our AI engine analyzes your library genres and ratings to recommend matching literature.
                   </p>
                 </div>
                 <button
@@ -273,7 +273,7 @@ export default function AIStudioModal({ isOpen, onClose, books = [], onBookAdded
                   disabled={loading}
                 >
                   <Sparkles size={14} />
-                  <span>{loading ? 'Consulting Gemini...' : 'Generate Suggestions'}</span>
+                  <span>{loading ? 'Consulting AI...' : 'Generate Suggestions'}</span>
                 </button>
               </div>
 
@@ -339,7 +339,7 @@ export default function AIStudioModal({ isOpen, onClose, books = [], onBookAdded
               ) : (
                 <div style={{ textAlign: 'center', padding: '3rem 1rem', color: 'var(--text-muted)' }}>
                   <BookOpen size={32} style={{ margin: '0 auto 0.75rem auto', opacity: 0.5 }} />
-                  <p style={{ fontSize: '0.9rem' }}>Click "Generate Suggestions" to have Gemini examine your library.</p>
+                  <p style={{ fontSize: '0.9rem' }}>Click "Generate Suggestions" to have the AI examine your library.</p>
                 </div>
               )}
             </div>

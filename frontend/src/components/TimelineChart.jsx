@@ -41,29 +41,27 @@ export default function TimelineChart() {
     fetchTimeline();
   }, [days]);
 
-  // Senior UX Custom Tooltip
+  // High-Contrast Brass / Parchment Tooltip
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
         <div 
           style={{
-            backgroundColor: '#FFFFFF',
-            border: '1px solid var(--border-subtle)',
+            background: 'linear-gradient(180deg, #381e10 0%, #1f0e05 100%)',
+            border: '1px solid var(--brass-mid)',
             borderRadius: 'var(--radius-sm)',
-            padding: '0.65rem 0.85rem',
-            boxShadow: 'var(--shadow-card)',
+            padding: '0.65rem 0.95rem',
+            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.85), inset 0 1px 1px rgba(255, 230, 160, 0.3)',
             fontSize: '0.8rem'
           }}
         >
-          <div style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.2rem' }}>
+          <div style={{ fontWeight: 700, color: '#fff3d1', marginBottom: '0.2rem', fontFamily: 'var(--font-heading)' }}>
             {data.date} ({data.label})
           </div>
-          <div style={{ color: 'var(--reading-text)', fontWeight: 600 }}>
-            {data.pages_read} pages read
-          </div>
-          <div style={{ color: 'var(--text-muted)', fontSize: '0.725rem' }}>
-            {data.sessions_count} session{data.sessions_count > 1 ? 's' : ''} logged
+          <div style={{ color: '#ffd700', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+            <span>📖</span>
+            <span>{data.pages_read} pages read</span>
           </div>
         </div>
       );
@@ -74,38 +72,41 @@ export default function TimelineChart() {
   const totalPagesInWindow = timelineData.reduce((acc, curr) => acc + curr.pages_read, 0);
 
   return (
-    <div className="card" style={{ padding: '1.5rem', marginBottom: '1.5rem' }}>
+    <div 
+      className="card" 
+      style={{ 
+        padding: '1.75rem', 
+        marginBottom: '2rem',
+        background: 'linear-gradient(180deg, #2b170c 0%, #1a0b04 100%)',
+        border: '1px solid #542f18',
+        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.75), inset 0 1px 1px rgba(255, 220, 140, 0.2)'
+      }}
+    >
       {/* Header & Controls */}
       <div 
         style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          marginBottom: '1.25rem',
+          marginBottom: '1.5rem',
           flexWrap: 'wrap',
-          gap: '0.75rem'
+          gap: '1rem'
         }}
       >
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
-            <TrendingUp size={16} style={{ color: 'var(--reading-text)' }} />
-            <h3 style={{ fontSize: '1.15rem' }}>Reading Momentum Over Time</h3>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', marginBottom: '0.3rem' }}>
+            <TrendingUp size={20} style={{ color: '#ffd700' }} />
+            <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.3rem', color: '#fff3d1', letterSpacing: '0.03em' }}>
+              Reading Momentum Over Time
+            </h3>
           </div>
-          <p style={{ fontSize: '0.825rem' }}>
-            {totalPagesInWindow} pages consumed over the past {days} days
+          <p style={{ fontSize: '0.875rem', color: 'var(--brass-mid)' }}>
+            <strong style={{ color: '#ffd700' }}>{totalPagesInWindow} pages</strong> logged across the past {days} days
           </p>
         </div>
 
-        {/* Time Window Switcher */}
-        <div 
-          style={{
-            display: 'flex',
-            backgroundColor: 'var(--bg-subtle)',
-            borderRadius: 'var(--radius-sm)',
-            padding: '0.15rem',
-            border: '1px solid var(--border-subtle)'
-          }}
-        >
+        {/* Time Window Switcher (Leather Tabs) */}
+        <div style={{ display: 'flex', gap: '0.45rem' }}>
           {[
             { val: 14, label: 'Past 14 Days' },
             { val: 30, label: 'Past 30 Days' },
@@ -114,18 +115,8 @@ export default function TimelineChart() {
               key={tab.val}
               type="button"
               onClick={() => setDays(tab.val)}
-              style={{
-                background: days === tab.val ? '#FFFFFF' : 'none',
-                color: days === tab.val ? 'var(--text-primary)' : 'var(--text-secondary)',
-                fontWeight: days === tab.val ? 600 : 500,
-                boxShadow: days === tab.val ? 'var(--shadow-sm)' : 'none',
-                border: 'none',
-                borderRadius: 'var(--radius-sm)',
-                padding: '0.3rem 0.65rem',
-                fontSize: '0.75rem',
-                cursor: 'pointer',
-                transition: 'all 150ms ease'
-              }}
+              className={`leather-tab ${days === tab.val ? 'active' : ''}`}
+              style={{ fontSize: '0.78rem', padding: '0.4rem 0.85rem' }}
             >
               {tab.label}
             </button>
@@ -134,29 +125,30 @@ export default function TimelineChart() {
       </div>
 
       {/* Recharts Area Chart */}
-      <div style={{ width: '100%', height: 260 }}>
+      <div style={{ width: '100%', height: 290 }}>
         {loading ? (
-          <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+          <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--brass-mid)', fontSize: '0.9rem' }}>
             Loading timeline telemetry...
           </div>
         ) : timelineData.length > 0 ? (
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={timelineData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+            <AreaChart data={timelineData} margin={{ top: 15, right: 15, left: -15, bottom: 0 }}>
               <defs>
-                <linearGradient id="readingGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#B45309" stopOpacity={0.15} />
-                  <stop offset="95%" stopColor="#B45309" stopOpacity={0.0} />
+                <linearGradient id="goldReadingGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#ffd700" stopOpacity={0.45} />
+                  <stop offset="60%" stopColor="#d4a945" stopOpacity={0.15} />
+                  <stop offset="98%" stopColor="#b8821e" stopOpacity={0.0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E8E8E2" />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255, 230, 160, 0.12)" />
               <XAxis 
                 dataKey="label" 
-                tick={{ fontSize: 11, fill: '#78716C' }} 
-                axisLine={{ stroke: '#E8E8E2' }}
-                tickLine={false}
+                tick={{ fontSize: 11, fill: '#e6d3b4', fontWeight: 600 }} 
+                axisLine={{ stroke: 'rgba(212, 169, 69, 0.35)' }}
+                tickLine={{ stroke: 'rgba(212, 169, 69, 0.35)' }}
               />
               <YAxis 
-                tick={{ fontSize: 11, fill: '#78716C' }} 
+                tick={{ fontSize: 11, fill: '#e6d3b4', fontWeight: 600 }} 
                 axisLine={false}
                 tickLine={false}
               />
@@ -164,19 +156,25 @@ export default function TimelineChart() {
               <Area 
                 type="monotone" 
                 dataKey="pages_read" 
-                stroke="#1C1917" 
-                strokeWidth={2}
+                stroke="#ffd700" 
+                strokeWidth={3}
                 fillOpacity={1} 
-                fill="url(#readingGradient)" 
-                activeDot={{ r: 5, fill: '#1C1917', stroke: '#FFFFFF', strokeWidth: 2 }}
+                fill="url(#goldReadingGradient)" 
+                activeDot={{ 
+                  r: 6, 
+                  fill: '#ffd700', 
+                  stroke: '#241403', 
+                  strokeWidth: 2,
+                  boxShadow: '0 0 10px #ffd700'
+                }}
               />
             </AreaChart>
           </ResponsiveContainer>
         ) : (
           <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
-            <Calendar size={28} style={{ marginBottom: '0.5rem', opacity: 0.5 }} />
-            <p style={{ fontSize: '0.85rem' }}>No reading logs recorded in this period yet.</p>
-            <p style={{ fontSize: '0.75rem' }}>Click "Log Daily Pages" on any active book to generate graph history!</p>
+            <Calendar size={32} style={{ marginBottom: '0.6rem', color: 'var(--brass-mid)', opacity: 0.6 }} />
+            <p style={{ fontSize: '0.9rem', color: '#fff3d1' }}>No reading logs recorded in this period yet.</p>
+            <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>Click "Log Daily Pages" on any active book on your shelf to generate momentum!</p>
           </div>
         )}
       </div>

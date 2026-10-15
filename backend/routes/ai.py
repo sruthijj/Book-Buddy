@@ -149,7 +149,7 @@ async def get_book_recommendations(
             parsed = json.loads(cleaned_json)
             if isinstance(parsed, list) and len(parsed) > 0:
                 recs = [AIRecommendationItem(**item) for item in parsed[:5]]
-                return AIRecommendResponse(recommendations=recs, source="gemini-3.8-flash")
+                return AIRecommendResponse(recommendations=recs, source="cloud-ai-engine")
         except Exception:
             pass
 
@@ -208,7 +208,7 @@ async def summarize_notes(
             return AISummarizeResponse(
                 summary=parsed.get("summary", ""),
                 key_takeaways=parsed.get("key_takeaways", []),
-                source="gemini-3.8-flash"
+                source="cloud-ai-engine"
             )
         except Exception:
             pass
@@ -266,7 +266,7 @@ async def generate_book_review(
             return AIReviewResponse(
                 headline=parsed.get("headline", f"Review: {req.book_title}"),
                 review=parsed.get("review", ""),
-                source="gemini-3.8-flash"
+                source="cloud-ai-engine"
             )
         except Exception:
             pass

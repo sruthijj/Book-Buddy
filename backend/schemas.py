@@ -183,7 +183,7 @@ class AIRecommendRequest(BaseModel):
 class AIRecommendResponse(BaseModel):
     """List of AI book recommendations."""
     recommendations: List[AIRecommendationItem]
-    source: str = Field(description="'gemini-1.5-flash' or 'smart-heuristics-engine'")
+    source: str = Field(description="'cloud-ai-engine' or 'smart-heuristics-engine'")
 
 
 class AISummarizeRequest(BaseModel):

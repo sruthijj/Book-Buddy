@@ -8,10 +8,10 @@ export default function Navbar({ onOpenAuth, onOpenAddBook, onOpenAIStudio }) {
   return (
     <header className="header-nav">
       <div className="header-inner">
-        {/* Brand Logo & Name */}
+        {/* Brand Logo & Name with Vintage Gold Crest */}
         <a href="/" className="brand-logo">
           <div className="brand-icon-box">
-            <BookOpen size={19} strokeWidth={2.4} />
+            <BookOpen size={20} strokeWidth={2.4} />
           </div>
           <span className="brand-title">Book Buddy</span>
           <span className="brand-badge">SANCTUARY</span>
@@ -21,38 +21,12 @@ export default function Navbar({ onOpenAuth, onOpenAddBook, onOpenAIStudio }) {
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
           {isAuthenticated ? (
             <>
-              {/* User Avatar & Name */}
-              <div 
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.55rem',
-                  padding: '0.35rem 0.85rem',
-                  borderRadius: 'var(--radius-full)',
-                  backgroundColor: 'rgba(255, 255, 255, 0.85)',
-                  border: '1px solid rgba(0, 0, 0, 0.08)',
-                  boxShadow: 'var(--shadow-sm)'
-                }}
-              >
-                <div 
-                  style={{
-                    width: '24px',
-                    height: '24px',
-                    borderRadius: '50%',
-                    background: 'var(--apple-blue-gradient)',
-                    color: '#FFFFFF',
-                    fontSize: '0.75rem',
-                    fontWeight: 700,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    textTransform: 'uppercase',
-                    boxShadow: 'var(--apple-blue-glow)'
-                  }}
-                >
+              {/* User Wax Seal Medallion */}
+              <div className="user-seal">
+                <div className="user-seal-avatar">
                   {user?.username ? user.username.charAt(0) : 'U'}
                 </div>
-                <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+                <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--brass-light)' }}>
                   {user?.username}
                 </span>
               </div>
@@ -88,7 +62,7 @@ export default function Navbar({ onOpenAuth, onOpenAddBook, onOpenAIStudio }) {
                 className="btn btn-ghost btn-sm"
                 onClick={logout}
                 title="Sign Out"
-                style={{ padding: '0.45rem' }}
+                style={{ padding: '0.45rem', color: 'var(--text-secondary)' }}
               >
                 <LogOut size={16} />
               </button>
