@@ -19,10 +19,16 @@ from .routes import auth, books, stats, isbn, ai
 async def lifespan(app: FastAPI):
     """
     Lifespan context manager: Runs on startup and shutdown.
-    Ensures database tables are initialized before handling requests.
+    Ensures database tables are initialized before handling requests,
+    and automatically provisions the demo reviewer account & reference data if missing.
     """
     # Create tables if they do not exist
     Base.metadata.create_all(bind=engine)
+    try:
+        from .seed_data import seed_dummy_data
+        seed_dummy_data()
+    except Exception as e:
+        print(f"[Startup Seeder Notice] {e}")
     yield
 
 

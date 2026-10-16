@@ -85,13 +85,14 @@ export const AuthProvider = ({ children }) => {
   // Senior Developer Trick: 1-Click Demo Login for Evaluators & Recruiters
   const demoLogin = async () => {
     setAuthError(null);
-    try {
-      // Attempt login with pre-configured reviewer demo account
-      return await login('demo_reviewer', 'DemoReviewer2026!');
-    } catch {
-      // If demo account doesn't exist yet, auto-register it!
-      return await register('demo_reviewer', 'reviewer@sayonetech.com', 'DemoReviewer2026!');
+    // 1. Attempt login with pre-configured reviewer demo account
+    const loginResult = await login('demo_reviewer', 'DemoReviewer2026!');
+    if (loginResult && loginResult.success) {
+      return loginResult;
     }
+    // 2. If demo account doesn't exist yet on backend, auto-register and authenticate!
+    const registerResult = await register('demo_reviewer', 'reviewer@sayonetech.com', 'DemoReviewer2026!');
+    return registerResult;
   };
 
   return (
