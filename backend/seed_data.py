@@ -206,9 +206,24 @@ def seed_dummy_data():
             db.refresh(demo_user)
             print("Created demo_reviewer account.")
 
-        # Gather target users to seed (all registered non-system users)
-        target_users = db.query(User).all()
-        print(f"Target users for dummy data: {[u.username for u in target_users]}")
+        # 2. Clean up dummy reference volumes from other accounts (only demo_reviewer should have them)
+        ref_titles = {b["title"].lower().strip() for b in REFERENCE_BOOKS}
+        non_demo_users = db.query(User).filter(User.username != "demo_reviewer").all()
+        for non_demo in non_demo_users:
+            books_to_remove = []
+            for b in non_demo.books:
+                # Preserve user's own original books (e.g. sruthijj's original books 1 and 2)
+                if non_demo.username == "sruthijj" and b.id in (1, 2):
+                    continue
+                if any(b.title.lower().strip().startswith(rt[:15]) for rt in ref_titles):
+                    books_to_remove.append(b)
+            for b in books_to_remove:
+                db.delete(b)
+        db.commit()
+
+        # 3. Only seed the dedicated demo_reviewer account
+        target_users = [demo_user]
+        print(f"Target user for dummy reference library: {[u.username for u in target_users]}")
 
         for user in target_users:
             # Check existing titles for this user

@@ -49,7 +49,14 @@ async def call_gemini(prompt: str) -> Optional[str]:
     if not api_key:
         return None
 
-    endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key={api_key}"
+    # Multi-model pool with automatic failover across active models
+    models_to_try = [
+        "gemini-3.7-flash",
+        "gemini-3.1-flash-lite",
+        "gemini-3.5-flash",
+        "gemini-3.8-flash",
+    ]
+
     payload = {
         "contents": [
             {
@@ -61,19 +68,23 @@ async def call_gemini(prompt: str) -> Optional[str]:
     }
 
     try:
-        async with httpx.AsyncClient(timeout=20.0) as client:
-            resp = await client.post(endpoint, json=payload)
-            if resp.status_code == 200:
-                data = resp.json()
-                candidates = data.get("candidates", [])
-                if candidates:
-                    parts = candidates[0].get("content", {}).get("parts", [])
-                    # In Gemini 3.8 Flash, filter out internal thought parts to extract actual text
-                    texts = [p.get("text", "") for p in parts if p.get("text") and not p.get("thought")]
-                    if texts:
-                        return "\n".join(texts).strip()
-                    elif parts and parts[-1].get("text"):
-                        return parts[-1].get("text", "").strip()
+        async with httpx.AsyncClient(timeout=14.0) as client:
+            for model_name in models_to_try:
+                endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}"
+                try:
+                    resp = await client.post(endpoint, json=payload)
+                    if resp.status_code == 200:
+                        data = resp.json()
+                        candidates = data.get("candidates", [])
+                        if candidates:
+                            parts = candidates[0].get("content", {}).get("parts", [])
+                            texts = [p.get("text", "") for p in parts if p.get("text") and not p.get("thought")]
+                            if texts:
+                                return "\n".join(texts).strip()
+                            elif parts and parts[-1].get("text"):
+                                return parts[-1].get("text", "").strip()
+                except Exception:
+                    continue
     except Exception:
         # Graceful degradation: Fall back seamlessly to smart heuristics engine
         pass
@@ -86,28 +97,54 @@ async def call_gemini(prompt: str) -> Optional[str]:
 # ==========================================
 
 CURATED_CATALOG = {
-    "Self-Help": [
-        {"title": "Atomic Habits", "author": "James Clear", "genre": "Self-Help", "reason": "The definitive framework on compounding small daily behavioral changes."},
-        {"title": "Deep Work", "author": "Cal Newport", "genre": "Self-Help", "reason": "Actionable focus strategies to achieve peak productivity in a distracted world."},
-        {"title": "The Psychology of Money", "author": "Morgan Housel", "genre": "Self-Help", "reason": "Timeless lessons on wealth, greed, and human financial decision-making."}
+    "Software Engineering": [
+        {"title": "Refactoring: Improving the Design of Existing Code", "author": "Martin Fowler", "genre": "Software Engineering", "reason": "The seminal guide to restructuring existing software and improving code maintainability."},
+        {"title": "System Design Interview – An Insider's Guide", "author": "Alex Xu", "genre": "Software Engineering", "reason": "Step-by-step frameworks for architecting large-scale, high-availability distributed systems."},
+        {"title": "Building Microservices", "author": "Sam Newman", "genre": "Software Engineering", "reason": "Comprehensive best practices for fine-grained service boundaries, integration, and deployment."},
+        {"title": "A Philosophy of Software Design", "author": "John Ousterhout", "genre": "Software Engineering", "reason": "Deep insights on managing cognitive complexity and creating deep module interfaces."},
+        {"title": "Clean Architecture", "author": "Robert C. Martin", "genre": "Software Engineering", "reason": "Essential rules on component separation, dependency inversion, and business logic isolation."}
     ],
     "Technology": [
-        {"title": "Clean Code", "author": "Robert C. Martin", "genre": "Technology", "reason": "The essential handbook of agile software craftsmanship and maintainability."},
-        {"title": "Designing Data-Intensive Applications", "author": "Martin Kleppmann", "genre": "Technology", "reason": "The gold standard guide for scalable architectures and distributed systems."},
-        {"title": "The Pragmatic Programmer", "author": "Andrew Hunt & David Thomas", "genre": "Technology", "reason": "Essential engineering habits for a long and productive development career."}
+        {"title": "Site Reliability Engineering", "author": "Betsy Beyer & Niall Murphy", "genre": "Technology", "reason": "How Google runs production systems with SLA monitoring, blameless postmortems, and automation."},
+        {"title": "Staff Engineer: Leadership Beyond the Management Track", "author": "Will Larson", "genre": "Technology", "reason": "A roadmap for navigating senior technical individual contributor roles and technical leadership."},
+        {"title": "Kubernetes: Up and Running", "author": "Brendan Burns, Joe Beda, Kelsey Hightower", "genre": "Technology", "reason": "Dive into container orchestration, distributed deployment, and resilient cluster architectures."}
+    ],
+    "Self-Help": [
+        {"title": "Essentialism: The Disciplined Pursuit of Less", "author": "Greg McKeown", "genre": "Self-Help", "reason": "Framework to eliminate non-essentials and channel energy into your highest point of contribution."},
+        {"title": "Make Time: How to Focus on What Matters Every Day", "author": "Jake Knapp & John Zeratsky", "genre": "Self-Help", "reason": "Tactical methods from the creators of Design Sprints to protect daily focus from modern distraction."},
+        {"title": "Four Thousand Weeks: Time Management for Mortals", "author": "Oliver Burkeman", "genre": "Self-Help", "reason": "A philosophical exploration of human finitude and choosing what truly matters in limited time."},
+        {"title": "Mindset: The New Psychology of Success", "author": "Carol S. Dweck", "genre": "Self-Help", "reason": "Groundbreaking research on how adopting a growth mindset unlocks potential and resilience."}
     ],
     "Science Fiction": [
-        {"title": "Dune", "author": "Frank Herbert", "genre": "Science Fiction", "reason": "An epic masterwork exploring politics, ecology, and myth on Arrakis."},
-        {"title": "Project Hail Mary", "author": "Andy Weir", "genre": "Science Fiction", "reason": "A thrilling interstellar survival tale driven by rigorous science and wit."},
-        {"title": "The Three-Body Problem", "author": "Cixin Liu", "genre": "Science Fiction", "reason": "A mind-bending first-contact hard sci-fi trilogy."}
-    ],
-    "Fiction": [
-        {"title": "The Midnight Library", "author": "Matt Haig", "genre": "Fiction", "reason": "A heartening exploration of choices, regret, and the paths not taken."},
-        {"title": "Klara and the Sun", "author": "Kazuo Ishiguro", "genre": "Fiction", "reason": "A delicate, haunting perspective on love and humanity through an AI companion."}
+        {"title": "The Three-Body Problem", "author": "Cixin Liu", "genre": "Science Fiction", "reason": "A mind-bending first-contact hard sci-fi trilogy exploring quantum dimensions and cosmic sociology."},
+        {"title": "Children of Time", "author": "Adrian Tchaikovsky", "genre": "Science Fiction", "reason": "An imaginative space epic chronicling the terraforming of a new world and the uplift of spider civilization."},
+        {"title": "Hyperion", "author": "Dan Simmons", "genre": "Science Fiction", "reason": "A celebrated space-opera pilgrimage inspired by The Canterbury Tales with unforgettable world-building."},
+        {"title": "Foundation", "author": "Isaac Asimov", "genre": "Science Fiction", "reason": "The monumental galactic saga of psychohistory, mathematical forecasting, and the fall of empires."}
     ],
     "Business": [
-        {"title": "Zero to One", "author": "Peter Thiel", "genre": "Business", "reason": "Notes on startups and how to build the future by avoiding conventional competition."},
-        {"title": "Good to Great", "author": "Jim Collins", "genre": "Business", "reason": "Empirical study on why some companies leap to greatness while others fail."}
+        {"title": "The Lean Startup", "author": "Eric Ries", "genre": "Business", "reason": "Build-Measure-Learn feedback loops for validating product hypotheses and eliminating wasted effort."},
+        {"title": "Shoe Dog: A Memoir by the Creator of Nike", "author": "Phil Knight", "genre": "Business", "reason": "An authentic, gritty chronicle of bootstrapping Nike against impossible odds and fierce obstacles."},
+        {"title": "High Output Management", "author": "Andrew S. Grove", "genre": "Business", "reason": "Legendary management principles on team leverage, operational efficiency, and organizational output."},
+        {"title": "Rework", "author": "Jason Fried & David Heinemeier Hansson", "genre": "Business", "reason": "A contrarian, straightforward manifesto on running modern lean companies without bloat."}
+    ],
+    "Psychology": [
+        {"title": "Predictably Irrational", "author": "Dan Ariely", "genre": "Psychology", "reason": "Fascinating behavioral economics experiments revealing the hidden forces behind irrational choices."},
+        {"title": "Influence: The Psychology of Persuasion", "author": "Robert Cialdini", "genre": "Psychology", "reason": "The classic study detailing the six universal principles of reciprocity, commitment, and social proof."},
+        {"title": "Quiet: The Power of Introverts in a World That Can't Stop Talking", "author": "Susan Cain", "genre": "Psychology", "reason": "Celebrates the quiet strength and irreplaceable power of introverted thinkers and leaders."},
+        {"title": "Man's Search for Meaning", "author": "Viktor E. Frankl", "genre": "Psychology", "reason": "A deeply moving memoir and psychological perspective on resilience and purpose in extreme adversity."}
+    ],
+    "History": [
+        {"title": "Guns, Germs, and Steel", "author": "Jared Diamond", "genre": "History", "reason": "A transdisciplinary investigation of geographic and environmental factors shaping human history."},
+        {"title": "The Silk Roads: A New History of the World", "author": "Peter Frankopan", "genre": "History", "reason": "A re-examination of world history focusing on the economic and cultural networks connecting East and West."},
+        {"title": "A Short History of Nearly Everything", "author": "Bill Bryson", "genre": "History", "reason": "A delightfully entertaining chronicle of scientific discovery from the Big Bang to the rise of civilization."}
+    ],
+    "Biography": [
+        {"title": "Leonardo da Vinci", "author": "Walter Isaacson", "genre": "Biography", "reason": "A portrait of history's greatest genius, uniting art, science, anatomy, and relentless curiosity."},
+        {"title": "Elon Musk", "author": "Walter Isaacson", "genre": "Biography", "reason": "An unfiltered look into the intense, high-stakes driving forces behind Tesla, SpaceX, and Neuralink."}
+    ],
+    "Fiction": [
+        {"title": "The Midnight Library", "author": "Matt Haig", "genre": "Fiction", "reason": "A heartening exploration of choices, regret, and the infinite potential paths not taken."},
+        {"title": "Klara and the Sun", "author": "Kazuo Ishiguro", "genre": "Fiction", "reason": "A delicate, haunting perspective on love and humanity through the eyes of an artificial friend."}
     ]
 }
 
@@ -124,20 +161,42 @@ async def get_book_recommendations(
 ):
     """
     Recommends books based on the user's reading history, favorite genres, and ratings.
+    Strictly excludes books that the user ALREADY owns in their personal library.
     Uses Gemini 1.5 Flash if available, otherwise runs the smart heuristics engine.
     """
-    # 1. Inspect user reading profile
+    # 1. Inspect user reading profile & compile exclusion list
     user_books = db.query(Book).filter(Book.user_id == current_user.id).all()
     user_genres = [b.genre for b in user_books if b.genre]
     liked_titles = [f"'{b.title}' by {b.author}" for b in user_books if (b.rating and b.rating >= 4) or b.status == BookStatus.COMPLETED.value]
 
-    target_genres = req.preferred_genres if (req and req.preferred_genres) else (list(set(user_genres)) or ["Self-Help", "Technology"])
+    # Gather all existing book titles owned by user (normalized for collision checks)
+    existing_titles = [b.title.strip() for b in user_books if b.title]
+    existing_titles_set = {b.title.lower().strip() for b in user_books if b.title}
 
-    # 2. Attempt Gemini Call
+    def is_already_owned(title: str) -> bool:
+        """Helper to determine if a recommended title collides with existing library."""
+        t = title.lower().strip()
+        return any(
+            t == ext or (len(t) > 6 and t in ext) or (len(ext) > 6 and ext in t)
+            for ext in existing_titles_set
+        )
+
+    target_genres = req.preferred_genres if (req and req.preferred_genres) else (list(set(user_genres)) or ["Self-Help", "Technology", "Software Engineering"])
+
+    # 2. Attempt Gemini Call with Explicit Library Exclusion
+    existing_titles_prompt = ", ".join([f"'{t}'" for t in existing_titles[:25]]) if existing_titles else "None"
     prompt = f"""
     You are Book Buddy's AI Reading Assistant.
-    Recommend 3 personalized books for a reader who likes genres: {', '.join(target_genres)}.
-    Books they highly rated: {', '.join(liked_titles[:5]) if liked_titles else 'Various bestsellers'}.
+    Recommend 4 personalized books for a reader who enjoys these genres: {', '.join(target_genres)}.
+    Books they highly rated in the past: {', '.join(liked_titles[:5]) if liked_titles else 'Various bestsellers'}.
+
+    CRITICAL EXCLUSION RULE:
+    The reader ALREADY OWNS the following books in their library:
+    [{existing_titles_prompt}]
+
+    MANDATORY REQUIREMENT:
+    Do NOT recommend any book listed above. Every single recommendation MUST be a FRESH, NEW book that is NOT in the reader's library.
+    
     Return strictly a JSON array of objects with keys: "title", "author", "genre", "reason".
     Output ONLY valid JSON without markdown tags.
     """
@@ -148,30 +207,51 @@ async def get_book_recommendations(
             cleaned_json = re.sub(r"^```json\s*|\s*```$", "", gemini_output.strip())
             parsed = json.loads(cleaned_json)
             if isinstance(parsed, list) and len(parsed) > 0:
-                recs = [AIRecommendationItem(**item) for item in parsed[:5]]
-                return AIRecommendResponse(recommendations=recs, source="cloud-ai-engine")
+                valid_recs: List[AIRecommendationItem] = []
+                for item in parsed:
+                    rec_item = AIRecommendationItem(**item)
+                    # Enforce post-filter against existing library
+                    if not is_already_owned(rec_item.title):
+                        valid_recs.append(rec_item)
+                if len(valid_recs) >= 2:
+                    return AIRecommendResponse(recommendations=valid_recs[:4], source="cloud-ai-engine")
         except Exception:
             pass
 
-    # 3. Smart Heuristics Fallback
+    # 3. Smart Heuristics Fallback (Filtering out owned titles)
     recommendations: List[AIRecommendationItem] = []
+    
+    # First pass: Look in user's target genres
     for genre in target_genres:
-        matched = CURATED_CATALOG.get(genre, CURATED_CATALOG["Technology"])
+        matched = CURATED_CATALOG.get(genre, CURATED_CATALOG.get("Software Engineering", []))
         for b in matched:
-            recommendations.append(AIRecommendationItem(
-                title=b["title"],
-                author=b["author"],
-                genre=b["genre"],
-                reason=b["reason"]
-            ))
+            if not is_already_owned(b["title"]) and not any(r.title.lower() == b["title"].lower() for r in recommendations):
+                recommendations.append(AIRecommendationItem(
+                    title=b["title"],
+                    author=b["author"],
+                    genre=b["genre"],
+                    reason=b["reason"]
+                ))
             if len(recommendations) >= 4:
                 break
         if len(recommendations) >= 4:
             break
 
-    if not recommendations:
-        for b in CURATED_CATALOG["Self-Help"]:
-            recommendations.append(AIRecommendationItem(**b))
+    # Second pass: If user already owns all titles in their target genres, explore complementary genres
+    if len(recommendations) < 4:
+        for cat_genre, cat_books in CURATED_CATALOG.items():
+            for b in cat_books:
+                if not is_already_owned(b["title"]) and not any(r.title.lower() == b["title"].lower() for r in recommendations):
+                    recommendations.append(AIRecommendationItem(
+                        title=b["title"],
+                        author=b["author"],
+                        genre=b["genre"],
+                        reason=b["reason"]
+                    ))
+                if len(recommendations) >= 4:
+                    break
+            if len(recommendations) >= 4:
+                break
 
     return AIRecommendResponse(recommendations=recommendations[:4], source="smart-heuristics-engine")
 

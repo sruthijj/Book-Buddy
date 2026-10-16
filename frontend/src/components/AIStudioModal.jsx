@@ -62,6 +62,13 @@ export default function AIStudioModal({ isOpen, onClose, books = [], onBookAdded
     }
   }, [books]);
 
+  // Auto-fetch recommendations when modal opens if empty
+  useEffect(() => {
+    if (isOpen && activeTab === 'recommend' && recommendations.length === 0 && !loading) {
+      handleGetRecommendations();
+    }
+  }, [isOpen, activeTab]);
+
   if (!isOpen) return null;
 
   // ==========================================
@@ -73,10 +80,13 @@ export default function AIStudioModal({ isOpen, onClose, books = [], onBookAdded
     setError(null);
     try {
       const res = await aiAPI.recommend({});
-      setRecommendations(res.data.recommendations);
-      setRecSource(res.data.source);
+      if (res.data && res.data.recommendations) {
+        setRecommendations(res.data.recommendations);
+        setRecSource(res.data.source || 'cloud-ai-engine');
+      }
     } catch (err) {
-      setError('Failed to generate recommendations. Please try again.');
+      const msg = err.response?.data?.detail || err.message || 'Failed to generate recommendations. Please try again.';
+      setError(msg);
     } finally {
       setLoading(false);
     }
