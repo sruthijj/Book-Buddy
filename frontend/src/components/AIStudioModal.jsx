@@ -11,7 +11,9 @@ import {
   Copy, 
   AlertCircle,
   TrendingUp,
-  Clock
+  Clock,
+  Globe,
+  Library
 } from 'lucide-react';
 import { aiAPI, booksAPI } from '../api/client';
 
@@ -24,6 +26,7 @@ export default function AIStudioModal({ isOpen, onClose, books = [], onBookAdded
   const [recommendations, setRecommendations] = useState([]);
   const [recSource, setRecSource] = useState('');
   const [addedBooks, setAddedBooks] = useState({});
+  const [imgErrors, setImgErrors] = useState({});
 
   // Tab 2: Summarizer State
   const [selectedBookForSummary, setSelectedBookForSummary] = useState('');
@@ -99,7 +102,8 @@ export default function AIStudioModal({ isOpen, onClose, books = [], onBookAdded
         author: rec.author,
         genre: rec.genre,
         status: 'wishlist',
-        notes: `AI Recommendation: ${rec.reason}`,
+        cover_image_url: rec.cover_image_url || undefined,
+        notes: `Recommendation: ${rec.reason}`,
       });
       setAddedBooks((prev) => ({ ...prev, [rec.title]: true }));
       if (onBookAdded) onBookAdded();
@@ -251,7 +255,7 @@ export default function AIStudioModal({ isOpen, onClose, books = [], onBookAdded
                 <div>
                   <h4 style={{ fontSize: '1.05rem', marginBottom: '0.2rem' }}>Personalized Literary Suggestions</h4>
                   <p style={{ fontSize: '0.825rem' }}>
-                    Our AI engine analyzes your library genres and ratings to recommend matching literature.
+                    Intelligent recommendations tailored to your genres, reading velocity, and taste.
                   </p>
                 </div>
                 <button
@@ -261,45 +265,102 @@ export default function AIStudioModal({ isOpen, onClose, books = [], onBookAdded
                   disabled={loading}
                 >
                   <Sparkles size={14} />
-                  <span>{loading ? 'Consulting AI...' : 'Generate Suggestions'}</span>
+                  <span>{loading ? 'Finding Suggestions...' : 'Refresh Suggestions'}</span>
                 </button>
               </div>
 
               {recommendations.length > 0 ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-                  {recSource && (
-                    <span style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>
-                      Engine: {recSource}
-                    </span>
-                  )}
+                  {recSource && (() => {
+                    const sourceInfo = (() => {
+                      switch (recSource) {
+                        case 'gemini-ai':
+                          return {
+                            label: 'Google Gemini AI',
+                            desc: 'Custom suggestions crafted by Google Gemini based on your reading history.',
+                            icon: Sparkles,
+                            className: 'ai-source-gemini',
+                          };
+                        case 'open-library':
+                          return {
+                            label: 'Open Library Trending',
+                            desc: 'Acclaimed, popular titles fetched live from Open Library matching your top genres.',
+                            icon: Globe,
+                            className: 'ai-source-openlibrary',
+                          };
+                        case 'curated-catalog':
+                          return {
+                            label: 'Curated Library Classics',
+                            desc: 'Hand-picked literary masterpieces matching your reading profile (Offline mode).',
+                            icon: Library,
+                            className: 'ai-source-curated',
+                          };
+                        default:
+                          return {
+                            label: recSource,
+                            desc: 'Recommendations tailored to your library taste.',
+                            icon: BookOpen,
+                            className: 'ai-source-default',
+                          };
+                      }
+                    })();
+                    const SourceIcon = sourceInfo.icon;
+                    return (
+                      <div className={`ai-source-banner ${sourceInfo.className}`}>
+                        <div className="ai-source-badge-pill">
+                          <SourceIcon size={13} />
+                          <span>Source: {sourceInfo.label}</span>
+                        </div>
+                        <span className="ai-source-banner-desc">{sourceInfo.desc}</span>
+                      </div>
+                    );
+                  })()}
+
                   {recommendations.map((rec, i) => (
                     <div 
                       key={i} 
                       className="card ai-rec-card"
                     >
-                      <div style={{ flex: 1 }}>
+                      {/* Book Cover Thumbnail with Graceful Fallback */}
+                      <div className="ai-rec-cover-wrapper">
+                        {rec.cover_image_url && !imgErrors[rec.title] ? (
+                          <img 
+                            src={rec.cover_image_url} 
+                            alt={rec.title}
+                            className="ai-rec-cover-img"
+                            onError={() => setImgErrors((prev) => ({ ...prev, [rec.title]: true }))}
+                          />
+                        ) : (
+                          <div className="ai-rec-cover-fallback">
+                            <BookOpen size={18} color="#fce2b8" />
+                            <span className="ai-rec-cover-fallback-title">{rec.title}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
                           <span className="status-pill wishlist" style={{ fontSize: '0.7rem' }}>
                             {rec.genre}
                           </span>
                         </div>
-                        <h5 style={{ fontSize: '1.05rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.15rem' }}>
+                        <h5 style={{ fontSize: '1.025rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.15rem' }}>
                           {rec.title}
                         </h5>
                         <p style={{ fontSize: '0.825rem', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>
                           by {rec.author}
                         </p>
-                        <p style={{ fontSize: '0.8rem', fontStyle: 'italic', color: 'var(--text-secondary)' }}>
+                        <p style={{ fontSize: '0.8rem', fontStyle: 'italic', color: 'var(--text-secondary)', lineHeight: 1.35 }}>
                           "{rec.reason}"
                         </p>
                       </div>
 
                       <button
                         type="button"
-                        className="btn btn-secondary btn-sm"
+                        className="btn btn-secondary btn-sm ai-rec-action-btn"
                         onClick={() => handleAddRecommendedToLibrary(rec)}
                         disabled={addedBooks[rec.title]}
-                        style={{ whiteSpace: 'nowrap' }}
+                        style={{ whiteSpace: 'nowrap', flexShrink: 0 }}
                       >
                         {addedBooks[rec.title] ? (
                           <>
@@ -319,7 +380,7 @@ export default function AIStudioModal({ isOpen, onClose, books = [], onBookAdded
               ) : (
                 <div style={{ textAlign: 'center', padding: '3rem 1rem', color: 'var(--text-muted)' }}>
                   <BookOpen size={32} style={{ margin: '0 auto 0.75rem auto', opacity: 0.5 }} />
-                  <p style={{ fontSize: '0.9rem' }}>Click "Generate Suggestions" to have the AI examine your library.</p>
+                  <p style={{ fontSize: '0.9rem' }}>Click "Refresh Suggestions" to generate personalized recommendations.</p>
                 </div>
               )}
             </div>

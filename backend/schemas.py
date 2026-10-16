@@ -167,11 +167,12 @@ class ISBNBookLookup(BaseModel):
 # ==========================================
 
 class AIRecommendationItem(BaseModel):
-    """Individual book recommendation with personalized reason."""
+    """Individual book recommendation with personalized reason and cover art."""
     title: str
     author: str
     genre: str
     reason: str
+    cover_image_url: Optional[str] = None
 
 
 class AIRecommendRequest(BaseModel):
@@ -181,9 +182,9 @@ class AIRecommendRequest(BaseModel):
 
 
 class AIRecommendResponse(BaseModel):
-    """List of AI book recommendations."""
+    """List of book recommendations with transparent origin tracking."""
     recommendations: List[AIRecommendationItem]
-    source: str = Field(description="'cloud-ai-engine' or 'smart-heuristics-engine'")
+    source: str = Field(description="'gemini-ai', 'open-library', or 'curated-catalog'")
 
 
 class AISummarizeRequest(BaseModel):

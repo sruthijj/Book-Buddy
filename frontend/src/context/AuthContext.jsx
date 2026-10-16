@@ -82,19 +82,6 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('book_buddy_user');
   };
 
-  // 1-Click Demo Login for Evaluators & Recruiters
-  const demoLogin = async () => {
-    setAuthError(null);
-    // 1. Attempt login with pre-configured reviewer demo account
-    const loginResult = await login('demo_reviewer', 'DemoReviewer2026!');
-    if (loginResult && loginResult.success) {
-      return loginResult;
-    }
-    // 2. If demo account doesn't exist yet on backend, auto-register and authenticate!
-    const registerResult = await register('demo_reviewer', 'reviewer@sayonetech.com', 'DemoReviewer2026!');
-    return registerResult;
-  };
-
   return (
     <AuthContext.Provider
       value={{
@@ -107,7 +94,6 @@ export const AuthProvider = ({ children }) => {
         login,
         register,
         logout,
-        demoLogin,
       }}
     >
       {children}

@@ -301,9 +301,8 @@ function App() {
                   </div>
                 </div>
 
-                {/* View Switcher & CTAs */}
+                {/* View Switcher: Bookshelf vs Study Desk */}
                 <div className="mantel-top-actions">
-                  {/* View Switcher: Bookshelf vs Study Desk */}
                   <div className="view-switcher-pill">
                     <button
                       type="button"
@@ -324,26 +323,6 @@ function App() {
                       <span>Study Desk</span>
                     </button>
                   </div>
-
-                  {isAuthenticated && (
-                    <button
-                      type="button"
-                      className="btn btn-ai btn-sm"
-                      onClick={() => setAiModalOpen(true)}
-                    >
-                      <Sparkles size={14} />
-                      <span>AI Studio</span>
-                    </button>
-                  )}
-
-                  <button 
-                    type="button" 
-                    className="btn btn-primary btn-sm"
-                    onClick={handleOpenAdd}
-                  >
-                    <Plus size={15} />
-                    <span>Add Book</span>
-                  </button>
                 </div>
               </div>
 

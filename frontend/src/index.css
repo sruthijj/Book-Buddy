@@ -1809,20 +1809,156 @@ body {
   }
 }
 
-.ai-rec-card {
-  padding: 1rem;
-  background-color: var(--bg-subtle);
+/* AI Recommendation Source Honest Badges */
+.ai-source-banner {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  padding: 0.65rem 0.9rem;
+  border-radius: var(--radius-sm);
+  margin-bottom: 0.35rem;
+  font-size: 0.775rem;
+  border: 1px solid transparent;
+  transition: all 180ms ease;
+}
+
+.ai-source-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  font-size: 0.7rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.ai-source-banner-desc {
+  margin: 0;
+  font-size: 0.775rem;
+  opacity: 0.9;
+}
+
+/* 1. Gemini Source Badge (Vibrant Gold / Amber) */
+.ai-source-gemini {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(139, 92, 246, 0.1) 100%);
+  border-color: rgba(245, 158, 11, 0.35);
+  color: #92400e;
+}
+.ai-source-gemini .ai-source-badge-pill {
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
+
+/* 2. Open Library Source Badge (Acclaimed Ocean Blue / Teal) */
+.ai-source-openlibrary {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.1) 0%, rgba(20, 184, 166, 0.1) 100%);
+  border-color: rgba(14, 165, 233, 0.3);
+  color: #0369a1;
+}
+.ai-source-openlibrary .ai-source-badge-pill {
+  background: #e0f2fe;
+  color: #0284c7;
+  border: 1px solid rgba(14, 165, 233, 0.3);
+}
+
+/* 3. Curated Library Classics Badge (Warm Oak & Parchment) */
+.ai-source-curated {
+  background: linear-gradient(135deg, rgba(139, 90, 43, 0.1) 0%, rgba(199, 137, 74, 0.12) 100%);
+  border-color: rgba(139, 90, 43, 0.28);
+  color: #78350f;
+}
+.ai-source-curated .ai-source-badge-pill {
+  background: #fef3c7;
+  color: #8b5a2b;
+  border: 1px solid rgba(139, 90, 43, 0.35);
+}
+
+/* Default / Generic Source */
+.ai-source-default {
+  background: var(--bg-subtle);
+  border-color: var(--border-light);
+  color: var(--text-secondary);
+}
+
+/* AI Recommendation Card with Book Cover */
+.ai-rec-card {
+  padding: 0.9rem 1rem;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
   gap: 1rem;
+  box-shadow: 0 1px 3px rgba(44, 24, 16, 0.04);
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.ai-rec-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(44, 24, 16, 0.08);
+}
+
+.ai-rec-cover-wrapper {
+  position: relative;
+  width: 58px;
+  min-width: 58px;
+  height: 84px;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 3px 8px rgba(44, 24, 16, 0.22), 0 1px 2px rgba(44, 24, 16, 0.12);
+  border: 1px solid rgba(139, 90, 43, 0.2);
+  flex-shrink: 0;
+  background: linear-gradient(145deg, #4d260c 0%, #2b1304 100%);
+}
+
+.ai-rec-cover-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.ai-rec-cover-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.3rem 0.2rem;
+  background: linear-gradient(145deg, #4d260c 0%, #2b1304 100%);
+  color: #fce2b8;
+  text-align: center;
+}
+
+.ai-rec-cover-fallback-title {
+  font-family: var(--font-serif);
+  font-size: 0.6rem;
+  color: #fff5e6;
+  font-weight: 600;
+  line-height: 1.15;
+  margin-top: 0.25rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 @media (max-width: 560px) {
   .ai-rec-card {
     flex-direction: column;
     align-items: stretch;
-    gap: 0.75rem;
+    gap: 0.85rem;
+  }
+  .ai-rec-action-btn {
+    width: 100%;
+    justify-content: center;
   }
 }
 

@@ -47,6 +47,36 @@ def _get_user_book_or_404(db: Session, book_id: int, user_id: int) -> Book:
     return book
 
 
+def _set_status(book: Book, new_status: object, now: Optional[datetime] = None) -> None:
+    """
+    Centralized status transition helper.
+    Keeps start_date and finish_date strictly consistent with status across all endpoints.
+    - wishlist: clears start_date and finish_date.
+    - reading: ensures start_date is set; clears finish_date.
+    - completed: ensures start_date and finish_date are set; ensures current_page == total_pages (100%).
+    """
+    if now is None:
+        now = datetime.utcnow()
+
+    status_str = new_status.value if hasattr(new_status, "value") else str(new_status)
+    book.status = status_str
+
+    if status_str == BookStatus.WISHLIST.value:
+        book.start_date = None
+        book.finish_date = None
+    elif status_str == BookStatus.READING.value:
+        if not book.start_date:
+            book.start_date = now
+        book.finish_date = None
+    elif status_str == BookStatus.COMPLETED.value:
+        if not book.start_date:
+            book.start_date = now
+        if not book.finish_date:
+            book.finish_date = now
+        if book.total_pages > 0 and book.current_page < book.total_pages:
+            book.current_page = book.total_pages
+
+
 @router.post("", response_model=BookOut, status_code=status.HTTP_201_CREATED)
 def create_book(
     book_in: BookCreate,
@@ -64,32 +94,31 @@ def create_book(
         )
 
     now = datetime.utcnow()
-    start_date = now if book_in.status == BookStatus.READING else None
-    finish_date = now if book_in.status == BookStatus.COMPLETED else None
 
     new_book = Book(
         user_id=current_user.id,
         title=book_in.title.strip(),
         author=book_in.author.strip(),
         genre=book_in.genre.strip(),
-        status=book_in.status.value,
         total_pages=book_in.total_pages,
         current_page=book_in.current_page,
         rating=book_in.rating,
         notes=book_in.notes,
         cover_image_url=book_in.cover_image_url,
         isbn=book_in.isbn.strip() if book_in.isbn else None,
-        start_date=start_date,
-        finish_date=finish_date
     )
+
+    # Apply unified status transition and date consistency
+    _set_status(new_book, book_in.status, now)
 
     try:
         db.add(new_book)
         db.commit()
         db.refresh(new_book)
 
-        # If created with initial reading progress, log the initial session
-        if new_book.current_page > 0:
+        # Only log initial reading session if the book is actively in progress (READING).
+        # A book added as already Completed was finished in the past and should not log pages today.
+        if new_book.status == BookStatus.READING.value and new_book.current_page > 0:
             initial_log = ReadingLog(
                 book_id=new_book.id,
                 pages_read=new_book.current_page,
@@ -185,17 +214,27 @@ def update_book(
             detail="Current page cannot exceed total pages."
         )
 
+    now = datetime.utcnow()
+
     # Apply updates
     update_data = book_in.model_dump(exclude_unset=True)
+    status_to_update = None
+    if "status" in update_data and update_data["status"] is not None:
+        status_to_update = update_data.pop("status")
+
     for field, value in update_data.items():
-        if field == "status" and value is not None:
-            setattr(book, field, value.value)
-        elif value is not None and isinstance(value, str):
+        if value is not None and isinstance(value, str):
             setattr(book, field, value.strip())
         else:
             setattr(book, field, value)
 
-    book.updated_at = datetime.utcnow()
+    # Apply status helper if status changed or current_page equals total_pages
+    if status_to_update is not None:
+        _set_status(book, status_to_update, now)
+    elif book.total_pages > 0 and book.current_page >= book.total_pages and book.status != BookStatus.COMPLETED.value:
+        _set_status(book, BookStatus.COMPLETED.value, now)
+
+    book.updated_at = now
 
     try:
         db.commit()
@@ -249,18 +288,18 @@ def update_reading_progress(
         )
         db.add(session_log)
 
-    # Smart Status Logic:
+    # Smart Status Logic & Date Synchronization:
     if progress.status:
-        book.status = progress.status.value
+        _set_status(book, progress.status, now)
     elif book.total_pages > 0 and new_page >= book.total_pages:
-        # Auto-complete
-        book.status = BookStatus.COMPLETED.value
-        if not book.finish_date:
-            book.finish_date = now
+        # Reached final page -> Auto-complete
+        _set_status(book, BookStatus.COMPLETED.value, now)
     elif book.total_pages > 0 and new_page < book.total_pages and book.status == BookStatus.COMPLETED.value:
-        # Revert status if user decreased page count below total
-        book.status = BookStatus.READING.value
-        book.finish_date = None
+        # Reverted page count below total -> Revert status to reading
+        _set_status(book, BookStatus.READING.value, now)
+    elif book.status == BookStatus.WISHLIST.value and new_page > 0:
+        # Started reading from wishlist
+        _set_status(book, BookStatus.READING.value, now)
 
     # Update optional rating and notes if supplied
     if progress.rating is not None:
