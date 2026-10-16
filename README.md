@@ -19,7 +19,7 @@ graph TD
     Frontend -->|"JWT REST Requests"| API["⚡ FastAPI Backend"]
     
     subgraph BackendServices["Backend Services"]
-        API -->|"ORM Transactions"| DB[("🗄️ SQLite Database")]
+        API -->|"ORM Transactions"| DB[("🗄️ Database (Local: SQLite / Cloud: PostgreSQL)")]
         API -->|"Async HTTP Client"| OpenLibrary["🌐 Open Library API"]
         API -->|"Inference Engine"| AI["✨ AI Reading Assistant"]
     end
@@ -285,5 +285,5 @@ Book Buddy/
 
 - **Backend**: FastAPI, Uvicorn, SQLAlchemy 2.0, Pydantic v2, Python-Jose (JWT), Passlib / Bcrypt, HTTPX
 - **Frontend**: React 19, Vite, Recharts, Lucide React, Axios
-- **Database**: SQLite (Zero configuration, high portability)
+- **Database**: SQLite (Local development) / PostgreSQL (Cloud production on Render)
 - **Styling**: Vanilla CSS custom design system (Warm honey-oak wood, parchment paper, brass plaques, 3D shadows)
