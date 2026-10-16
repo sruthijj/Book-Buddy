@@ -107,6 +107,17 @@ Ensure you have the following installed on your machine:
 
 ---
 
+### 4. Running the Automated Test Suite (Pytest)
+
+Book Buddy includes an automated test suite of **25 unit and integration tests** covering authentication, tenant isolation, book lifecycle & progress tracking, analytics aggregations, catalog search & genre normalization, recommendation exclusions, and health checks:
+
+```bash
+pytest
+```
+- Executes completely offline against an isolated in-memory SQLite test database in seconds without requiring internet access.
+
+---
+
 ## 🌐 Cloud Deployment Guide (Vercel + Render)
 
 Book Buddy is pre-configured for seamless cloud deployment using **Render** for the backend API and **Vercel** for the React frontend.
