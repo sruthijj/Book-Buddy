@@ -10,9 +10,18 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.orm import declarative_base, sessionmaker, Session
 
 # Database URL: supports local SQLite, persistent disk mounts, and cloud PostgreSQL
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./book_buddy.db")
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./book_buddy.db").strip().strip('"').strip("'")
+
+# Defensive normalization for production deployment strings
 if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+elif DATABASE_URL.startswith("postgresql.//"):
+    DATABASE_URL = DATABASE_URL.replace("postgresql.//", "postgresql://", 1)
+
+# Correct potential mistyped '@' symbol before Render host (e.g. adpg- instead of @dpg-)
+if "@" not in DATABASE_URL and "dpg-" in DATABASE_URL:
+    import re
+    DATABASE_URL = re.sub(r'a(?=dpg-)', '@', DATABASE_URL)
 
 # check_same_thread=False allows FastAPI multi-threaded request workers to access SQLite
 engine = create_engine(

@@ -10,9 +10,9 @@ services:
       - key: PYTHON_VERSION
         value: 3.11.8
       - key: SECRET_KEY
-        generateValue: true
+        sync: false
       - key: DATABASE_URL
-        value: "sqlite:///./book_buddy.db"
+        sync: false
       - key: GEMINI_API_KEY
         sync: false
       - key: FRONTEND_URL
