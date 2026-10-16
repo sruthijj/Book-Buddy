@@ -6,7 +6,7 @@ Book Buddy allows readers to catalog physical and digital books, track page-by-p
 
 > **🚀 Live Web Application**: [https://book-buddy-sigma-flax.vercel.app/](https://book-buddy-sigma-flax.vercel.app/)  
 > **🔑 Evaluator Demo Credentials**:
-> - **Email**: `reviewer@sayonetech.com`
+> - **Username**: `demo_reviewer`
 > - **Password**: `DemoReviewer2026!` *(pre-populated with 15 curated books, reading logs, and telemetry)*
 
 ---
