@@ -48,8 +48,7 @@ else:
         echo=False
     )
 
-# Senior Developer Best Practice:
-# SQLite does NOT enforce foreign keys by default. We enable it on every connection.
+# Enable SQLite foreign key enforcement on every connection
 @event.listens_for(Engine, "connect")
 def set_sqlite_pragma(dbapi_connection, connection_record):
     if "sqlite" in DATABASE_URL:

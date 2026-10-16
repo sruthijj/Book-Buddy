@@ -1,7 +1,7 @@
 """
 AI and Predictive analytics router for Book Buddy.
 Features Dual-Engine Architecture:
-1. Live Google Gemini 1.5 Flash integration when GEMINI_API_KEY is configured.
+1. Live Google Gemini integration (gemini-3.7-flash, gemini-3.1-flash-lite) when GEMINI_API_KEY is configured.
 2. Built-in smart heuristics engine for zero-config, 100% reliable offline evaluation.
 """
 
@@ -42,7 +42,8 @@ router = APIRouter(prefix="/api/ai", tags=["AI Reading Assistant"])
 
 async def call_gemini(prompt: str) -> Optional[str]:
     """
-    Asynchronously queries Google Gemini 1.5 Flash API if GEMINI_API_KEY is present.
+    Asynchronously queries Google Gemini API with automatic model failover.
+    Sends API key securely in the 'x-goog-api-key' request header.
     Returns None if key is missing or on any upstream error (triggering graceful fallback).
     """
     api_key = os.getenv("GEMINI_API_KEY", "").strip()
@@ -67,12 +68,17 @@ async def call_gemini(prompt: str) -> Optional[str]:
         ]
     }
 
+    headers = {
+        "Content-Type": "application/json",
+        "x-goog-api-key": api_key,
+    }
+
     try:
         async with httpx.AsyncClient(timeout=14.0) as client:
             for model_name in models_to_try:
-                endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}"
+                endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent"
                 try:
-                    resp = await client.post(endpoint, json=payload)
+                    resp = await client.post(endpoint, headers=headers, json=payload)
                     if resp.status_code == 200:
                         data = resp.json()
                         candidates = data.get("candidates", [])

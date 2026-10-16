@@ -8,6 +8,7 @@ import {
 } from 'recharts';
 import { PieChart as PieIcon } from 'lucide-react';
 import { statsAPI } from '../api/client';
+import { useAuth } from '../context/AuthContext';
 
 // Radiant jewel tone palette designed for dark mahogany wood surfaces
 const GENRE_COLORS = [
@@ -21,10 +22,17 @@ const GENRE_COLORS = [
 ];
 
 export default function GenreChart() {
+  const { isAuthenticated } = useAuth();
   const [genresData, setGenresData] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      setGenresData([]);
+      setLoading(false);
+      return;
+    }
+
     const fetchGenres = async () => {
       setLoading(true);
       try {
@@ -38,7 +46,7 @@ export default function GenreChart() {
     };
 
     fetchGenres();
-  }, []);
+  }, [isAuthenticated]);
 
   // Custom Brass Tooltip
   const CustomTooltip = ({ active, payload }) => {

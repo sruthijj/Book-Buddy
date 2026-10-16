@@ -1,7 +1,7 @@
 """
 Book management CRUD endpoints for Book Buddy.
 Provides user-isolated operations for managing book catalog, reading progress, and reflection notes.
-Adheres to Senior/Staff engineer standards: DRY helpers, pagination, declarative sorting, and safe rollbacks.
+Includes DRY helpers, pagination limits, declarative sorting, and safe transaction rollbacks.
 """
 
 from datetime import datetime
@@ -17,7 +17,7 @@ from ..auth import get_current_user
 
 router = APIRouter(prefix="/api/books", tags=["Books"])
 
-# Senior Best Practice: Declarative dictionary mapping for allowed sort fields
+# Declarative dictionary mapping for allowed sort fields
 SORT_FIELDS: Dict[str, object] = {
     "updated_at": Book.updated_at,
     "created_at": Book.created_at,
@@ -147,7 +147,7 @@ def get_books(
     else:
         query = query.order_by(desc(sort_column))
 
-    # Senior Practice: Pagination protection against memory spikes
+    # Pagination protection to prevent large memory spikes
     return query.offset(skip).limit(limit).all()
 
 
@@ -258,7 +258,7 @@ def update_reading_progress(
         if not book.finish_date:
             book.finish_date = now
     elif book.total_pages > 0 and new_page < book.total_pages and book.status == BookStatus.COMPLETED.value:
-        # Senior refinement: Typo correction reversion
+        # Revert status if user decreased page count below total
         book.status = BookStatus.READING.value
         book.finish_date = None
 

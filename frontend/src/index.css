@@ -57,6 +57,22 @@
   --radius-md: 10px;
   --radius-lg: 16px;
   --radius-full: 9999px;
+
+  /* Interactive & UI Functional Tokens */
+  --brand-primary: #8a4f18;       /* Deep warm chestnut for active indicators */
+  --brand-accent: #b26a1c;        /* Warm antique amber/bronze for highlights & icons */
+  --bg-subtle: #fcf8f2;           /* Soft warm ivory parchment for cards & tabs */
+  --border-subtle: #ebd7be;       /* Delicate warm parchment border */
+  --border-strong: #d1b392;       /* Warm oak border for controls & star ratings */
+  --brass-mid: #b37d36;           /* Polished antique brass */
+  --text-primary: #261203;        /* Deep oak brown text */
+  --text-secondary: #6e4421;      /* Warm muted chestnut text */
+
+  /* Reading Progress States */
+  --reading-text: #0056b3;        /* Library sapphire blue for active reading */
+  --completed-bg: #eef7ee;        /* Soft sage tint for completed state */
+  --completed-border: #a3d9a5;    /* Gentle laurel green border */
+  --completed-text: #1b5e20;      /* Deep forest green for completed state */
 }
 
 /* Global Reset */
@@ -1856,5 +1872,77 @@ body {
     grid-template-columns: 1fr;
     gap: 0.5rem;
   }
+}
+
+/* ==========================================================================
+   COLD START RECOVERY BANNER
+   ========================================================================== */
+.cold-start-banner {
+  background: linear-gradient(135deg, #fff8ee 0%, #faebd7 100%);
+  border: 1px solid #d4a373;
+  border-left: 4px solid #b26a1c;
+  box-shadow: 0 4px 15px rgba(60, 30, 10, 0.15);
+  padding: 0.75rem 1.25rem;
+  margin: 0.75rem 1rem 0 1rem;
+  border-radius: var(--radius-sm);
+  animation: slideDownFade 0.3s ease-out;
+  position: relative;
+  z-index: 50;
+}
+
+@keyframes slideDownFade {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.cold-start-inner {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.cold-start-icon {
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
+.cold-start-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(178, 106, 28, 0.25);
+  border-top-color: #b26a1c;
+  border-radius: 50%;
+  animation: spin 0.85s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.cold-start-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.cold-start-headline {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #4a2708;
+}
+
+.cold-start-subtitle {
+  font-size: 0.775rem;
+  color: #7c4c1a;
+  line-height: 1.3;
 }
 

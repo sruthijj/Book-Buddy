@@ -38,6 +38,16 @@ function App() {
   const [progressModalOpen, setProgressModalOpen] = useState(false)
   const [selectedBookForProgress, setSelectedBookForProgress] = useState(null)
   const [aiModalOpen, setAiModalOpen] = useState(false)
+  const [isColdStarting, setIsColdStarting] = useState(false)
+
+  // Listen for cold-start events (fires if cloud container wakeup takes > 2.5s)
+  useEffect(() => {
+    const handleColdStart = (e) => {
+      setIsColdStarting(e.detail?.isColdStart || false)
+    }
+    window.addEventListener('book_buddy_cold_start', handleColdStart)
+    return () => window.removeEventListener('book_buddy_cold_start', handleColdStart)
+  }, [])
 
   // Primary Navigation View: 'catalog' (Bookshelf) | 'analytics' (Study Desk)
   const [activeView, setActiveView] = useState('catalog')
@@ -216,6 +226,22 @@ function App() {
         onOpenAddBook={handleOpenAdd}
         onOpenAIStudio={() => setAiModalOpen(true)}
       />
+
+      {/* Cloud Cold Start Awareness Banner */}
+      {isColdStarting && (
+        <div className="cold-start-banner" role="status" aria-live="polite">
+          <div className="cold-start-inner">
+            <span className="cold-start-spinner"></span>
+            <span className="cold-start-icon">☕</span>
+            <div className="cold-start-text">
+              <strong className="cold-start-headline">Waking up the cloud sanctuary server...</strong>
+              <span className="cold-start-subtitle">
+                Render free-tier instances sleep after inactivity. This first wake-up takes ~30–45 seconds. Thank you for your patience!
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
 
       <main className="app-container">
         {/* VIEW: STUDY DESK & TELEMETRY */}
@@ -402,7 +428,7 @@ function App() {
                   <span>⚡ <strong>{statsSummary?.total_pages_read || 0}</strong> Pages Read</span>
                 </div>
                 <div className="mantel-ticker-rating">
-                  <span>★ Satisfaction: <strong>{statsSummary?.average_rating ? `${statsSummary.average_rating.toFixed(1)} / 5.0` : '5.0 / 5.0'}</strong></span>
+                  <span>★ Satisfaction: <strong>{statsSummary?.average_rating ? `${statsSummary.average_rating.toFixed(1)} / 5.0` : '—'}</strong></span>
                 </div>
               </div>
             </div>

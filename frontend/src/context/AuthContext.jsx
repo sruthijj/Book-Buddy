@@ -82,7 +82,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('book_buddy_user');
   };
 
-  // Senior Developer Trick: 1-Click Demo Login for Evaluators & Recruiters
+  // 1-Click Demo Login for Evaluators & Recruiters
   const demoLogin = async () => {
     setAuthError(null);
     // 1. Attempt login with pre-configured reviewer demo account

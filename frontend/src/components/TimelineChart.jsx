@@ -10,13 +10,21 @@ import {
 } from 'recharts';
 import { TrendingUp, Calendar } from 'lucide-react';
 import { statsAPI } from '../api/client';
+import { useAuth } from '../context/AuthContext';
 
 export default function TimelineChart() {
+  const { isAuthenticated } = useAuth();
   const [days, setDays] = useState(30);
   const [timelineData, setTimelineData] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      setTimelineData([]);
+      setLoading(false);
+      return;
+    }
+
     const fetchTimeline = async () => {
       setLoading(true);
       try {
@@ -39,7 +47,7 @@ export default function TimelineChart() {
     };
 
     fetchTimeline();
-  }, [days]);
+  }, [days, isAuthenticated]);
 
   // High-Contrast Brass / Parchment Tooltip
   const CustomTooltip = ({ active, payload }) => {

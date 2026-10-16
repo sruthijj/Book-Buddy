@@ -66,7 +66,8 @@ Ensure you have the following installed on your machine:
 4. **Configure environment variables**:
    Create a `.env` file in the project root (or verify the existing `.env`):
    ```env
-   SECRET_KEY=super-secret-book-buddy-key-2026-production-ready
+   # Generate a secure key via: python -c "import secrets; print(secrets.token_hex(32))"
+   SECRET_KEY=your_generated_secret_key_here
    DATABASE_URL=sqlite:///./book_buddy.db
    GEMINI_API_KEY=your_gemini_api_key_here
    ```
@@ -77,6 +78,7 @@ Ensure you have the following installed on your machine:
    ```
    - The API will be live at: `http://127.0.0.1:8000`
    - Interactive Swagger API Documentation: `http://127.0.0.1:8000/docs`
+   - Health check probe: `http://127.0.0.1:8000/api/health`
 
 ---
 
@@ -114,9 +116,9 @@ Book Buddy is pre-configured for seamless cloud deployment using **Render** for 
    - **Build Command**: `pip install -r backend/requirements.txt`
    - **Start Command**: `uvicorn backend.main:app --host 0.0.0.0 --port $PORT`
 5. Under **Environment Variables**, add:
-   - `SECRET_KEY`: *(Generate a secure random string)*
-   - `DATABASE_URL`: `sqlite:///./book_buddy.db` *(or mount a persistent disk at `/data` with `sqlite:////data/book_buddy.db`)*
-   - `GEMINI_API_KEY`: *(Your AI API key)*
+   - `SECRET_KEY`: *(Generate a 64-character random string)*
+   - `DATABASE_URL`: *(Render Managed PostgreSQL internal connection URL or SQLite)*
+   - `GEMINI_API_KEY`: *(Your Google AI Gemini key)*
 6. Click **Deploy Web Service** and copy your backend URL (e.g., `https://book-buddy-api.onrender.com`).
 
 ### Step 2: Deploy Frontend on Vercel
@@ -136,8 +138,8 @@ Book Buddy is pre-configured for seamless cloud deployment using **Render** for 
 ## 🌟 Comprehensive Feature List
 
 ### 1. Complete Book Lifecycle Management
-- **Add New Volumes**: Manually add books with title, author, total pages, genre, publication year, custom cover artwork URL, and personal notes.
-- **Edit & Update**: Modify any book's metadata, progress, or personal reflections at any time.
+- **Add New Volumes**: Add books with title, author, total pages, genre, publication year, custom cover artwork URL, and personal notes.
+- **Edit & Update**: Modify any book's metadata, page count, cover art, rating, or personal reflections at any time.
 - **Delete with Confirmation**: Cleanly delete books with cascading cleanup of associated reading logs.
 - **Multi-Filter & Sorting**:
   - Filter by reading state: *All Volumes*, *Reading Now*, *Completed*, or *Wishlist*.
@@ -155,7 +157,7 @@ Book Buddy is pre-configured for seamless cloud deployment using **Render** for 
 - **Interactive Reading Session Logger**: Record the current page reached and minutes spent reading in each session.
 - **Automatic State Transitions**: Updating a book's current page automatically shifts its status from *Wishlist* to *Reading Now*, and reaching the final page marks it as *Completed*.
 - **Velocity Metrics**: Computes reading speed in **Pages per Hour** and **Words per Minute (WPM)** based on session duration.
-- **Historical Reading Logs**: View a complete chronological timeline of every reading session per book with date stamps and session notes.
+- **Historical Reading Logs**: View a complete chronological timeline of every reading session per book with date stamps, pages read, and session durations.
 
 ### 4. 1-Click Open Library ISBN Auto-Import
 - Enter any standard 10-digit or 13-digit ISBN (e.g., `9780132350884` for *Clean Code*).
@@ -176,15 +178,18 @@ Book Buddy is pre-configured for seamless cloud deployment using **Render** for 
 - **Reading Velocity Timeline Area Chart**: Displays daily pages consumed over time with smooth gradient fills and customized hover tooltips.
 - **Genre Distribution Chart**: Visual breakdown of your reading tastes across genres.
 
-### 6. AI Reading Assistant
-- **Contextual Book Chat**: Inquire about key themes, author background, or discussion prompts.
-- **Pace Analysis & Completion Forecasting**: Estimates your expected completion date based on your personal reading speed.
+### 6. AI Reading Assistant (Dual-Engine Architecture)
+- **Smart Book Recommendations**: Generates tailored suggestions matching your reading tastes, with strict library exclusion and curated offline fallback.
+- **Pace Analysis & Completion Forecasting**: Calculates daily velocity from reading logs and forecasts completion dates.
 - **Executive Summaries**: Synthesizes notes and reading progress into high-level recaps.
+- **Thoughtful Review Generator**: Automatically drafts structured reader reflections and reviews based on your rating and progress.
 
 ### 7. Security & User Isolation
 - **JWT Authentication**: Secure user registration and login with JSON Web Tokens.
 - **Password Security**: Passwords hashed using industry-standard `bcrypt`.
 - **Strict Data Isolation**: Every book, reading session, and statistic is isolated to the authenticated user via FastAPI's dependency injection (`Depends(get_current_user)`).
+- **Environment Key Enforcement**: Strict requirement of environment secrets preventing token forgery.
+- **Restricted CORS**: Cross-origin policy restricted strictly to local environments and verified application domains.
 
 ---
 
@@ -198,22 +203,25 @@ FastAPI automatically serves interactive API documentation at:
 
 | Method | Endpoint | Description | Auth Required |
 | :--- | :--- | :--- | :---: |
-| `POST` | `/auth/register` | Register a new reader account | No |
-| `POST` | `/auth/login` | Authenticate and obtain JWT access token | No |
-| `GET` | `/auth/me` | Fetch authenticated user profile | Yes |
-| `GET` | `/books` | List books (supports search, filter, and sort) | Yes |
-| `POST` | `/books` | Add a new volume to the library | Yes |
-| `GET` | `/books/{id}` | Retrieve book details and reading progress | Yes |
-| `PUT` | `/books/{id}` | Update book metadata, rating, or cover | Yes |
-| `DELETE` | `/books/{id}` | Remove volume and delete reading logs | Yes |
-| `POST` | `/books/{id}/progress` | Log a reading session (pages, minutes, notes) | Yes |
-| `GET` | `/books/{id}/logs` | Retrieve session history for a book | Yes |
-| `GET` | `/stats/summary` | Aggregate statistics (totals, pages, ratings) | Yes |
-| `GET` | `/stats/timeline` | Daily reading timeline data for charts | Yes |
-| `GET` | `/stats/genres` | Genre distribution data for charts | Yes |
-| `GET` | `/isbn/{isbn}` | Auto-lookup book metadata from Open Library | Yes |
-| `POST` | `/ai/chat` | Query the reading assistant | Yes |
-| `POST` | `/ai/velocity/{id}` | Calculate completion forecast for a book | Yes |
+| `GET` | `/api/health` | Lightweight health check & cloud container probe | No |
+| `POST` | `/api/auth/register` | Register a new reader account | No |
+| `POST` | `/api/auth/login` | Authenticate and obtain JWT access token | No |
+| `GET` | `/api/auth/me` | Fetch authenticated user profile | Yes |
+| `GET` | `/api/books` | List books (supports search, genre filter, and sort) | Yes |
+| `POST` | `/api/books` | Add a new volume to the library | Yes |
+| `GET` | `/api/books/{id}` | Retrieve book details and reading progress | Yes |
+| `PUT` | `/api/books/{id}` | Update book metadata, rating, or cover | Yes |
+| `DELETE` | `/api/books/{id}` | Remove volume and delete reading logs | Yes |
+| `POST` | `/api/books/{id}/progress` | Log a reading session (pages read, duration) | Yes |
+| `GET` | `/api/books/{id}/logs` | Retrieve session history for a book | Yes |
+| `GET` | `/api/stats/summary` | Aggregate statistics (totals, pages, ratings) | Yes |
+| `GET` | `/api/stats/timeline` | Daily reading timeline data for charts | Yes |
+| `GET` | `/api/stats/genres` | Genre distribution data for charts | Yes |
+| `GET` | `/api/isbn/{isbn}` | Auto-lookup book metadata from Open Library | Yes |
+| `POST` | `/api/ai/recommend` | Generate recommendations (excludes library) | Yes |
+| `POST` | `/api/ai/summarize` | Generate reading summaries and reflections | Yes |
+| `POST` | `/api/ai/generate-review` | Generate structured review from notes & rating | Yes |
+| `GET` | `/api/ai/predict-completion/{id}` | Calculate completion forecast for an active book | Yes |
 
 ---
 
@@ -233,24 +241,26 @@ Book Buddy/
 │   ├── main.py              # FastAPI application entrypoint & CORS
 │   ├── models.py            # SQLAlchemy database models (User, Book, Log)
 │   ├── schemas.py           # Pydantic validation schemas
+│   ├── seed_data.py         # Scoped demo reviewer catalog seeder
 │   └── requirements.txt     # Python backend dependencies
 │
 ├── frontend/
 │   ├── src/
+│   │   ├── api/
+│   │   │   └── client.js              # Axios API client with in-flight cold start tracking
 │   │   ├── components/
-│   │   │   ├── AddBookModal.jsx       # Manual entry & ISBN lookup modal
-│   │   │   ├── AIStudioModal.jsx      # AI reading assistant modal
+│   │   │   ├── AIStudioModal.jsx      # AI reading assistant & recommendations modal
 │   │   │   ├── AuthModal.jsx          # User login & registration modal
 │   │   │   ├── BookCard.jsx           # 3D book spine & card component
 │   │   │   ├── BookDetailModal.jsx    # Book overview, notes & quick actions
-│   │   │   ├── EditBookModal.jsx      # Edit book metadata modal
+│   │   │   ├── BookModal.jsx          # Add & Edit volume modal with ISBN scanner
 │   │   │   ├── GenreChart.jsx         # Recharts genre distribution chart
 │   │   │   ├── Navbar.jsx             # Top navigation & user controls
 │   │   │   ├── ProgressModal.jsx      # Reading session logger modal
-│   │   │   ├── StatsOverview.jsx      # Metric plaques (pages, velocity)
+│   │   │   ├── StatsOverview.jsx      # Metric plaques (pages, completion pace)
 │   │   │   └── TimelineChart.jsx      # Recharts daily reading timeline
-│   │   ├── services/
-│   │   │   └── api.js                 # Axios API client with auth interceptors
+│   │   ├── context/
+│   │   │   └── AuthContext.jsx        # JWT session provider & demo evaluator login
 │   │   ├── App.jsx                    # Main application & dynamic shelf logic
 │   │   ├── index.css                  # Custom wooden bookshelf design system
 │   │   └── main.jsx                   # React root entrypoint
@@ -258,7 +268,7 @@ Book Buddy/
 │   └── vite.config.js                 # Vite bundler & backend proxy config
 │
 ├── .env                     # Environment variables (JWT secret, DB URL)
-├── book_buddy.db            # SQLite database file
+├── book_buddy.db            # Local SQLite database file
 └── README.md                # Project documentation
 ```
 

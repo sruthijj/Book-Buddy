@@ -8,6 +8,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 import os
+from datetime import datetime
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -39,6 +40,7 @@ allowed_origins = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
     "http://localhost:3000",
+    "https://book-buddy.vercel.app",
 ]
 if frontend_env:
     allowed_origins.append(frontend_env)
@@ -46,7 +48,7 @@ if frontend_env:
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
-    allow_origin_regex=r"https://.*\.vercel\.app",
+    allow_origin_regex=r"https://book-buddy-.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -69,3 +71,23 @@ def root():
         "docs_url": "/docs",
         "version": "1.0.0"
     }
+
+
+@app.get("/api/health", tags=["Health"])
+def api_health():
+    """
+    Dedicated lightweight health-check endpoint for uptime monitors and cold-start probes.
+    Returns status 200 without running heavy database transactions.
+    """
+    return {
+        "status": "healthy",
+        "app": "Book Buddy API",
+        "timestamp": datetime.utcnow().isoformat(),
+        "environment": "production" if os.getenv("RENDER") else "development"
+    }
+
+
+@app.get("/health", tags=["Health"])
+def root_health():
+    """Root /health endpoint alias."""
+    return api_health()
