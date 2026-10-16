@@ -193,7 +193,7 @@ export default function BookModal({ isOpen, onClose, onSuccess, initialBook = nu
                 </span>
               </div>
 
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <div className="isbn-import-input-row">
                 <input
                   type="text"
                   className="form-input"
@@ -210,10 +210,9 @@ export default function BookModal({ isOpen, onClose, onSuccess, initialBook = nu
                 />
                 <button
                   type="button"
-                  className="btn btn-secondary btn-sm"
+                  className="btn btn-secondary btn-sm isbn-fetch-btn"
                   onClick={handleFetchISBN}
                   disabled={fetchingIsbn || !isbnInput.trim()}
-                  style={{ minWidth: '130px' }}
                 >
                   {fetchingIsbn ? 'Fetching...' : 'Fetch Details'}
                 </button>
@@ -258,7 +257,7 @@ export default function BookModal({ isOpen, onClose, onSuccess, initialBook = nu
 
           <form onSubmit={handleSubmit}>
             {/* Title & Author */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '1rem' }}>
+            <div className="form-row-2col">
               <div className="form-group">
                 <label className="form-label">Book Title *</label>
                 <input
@@ -285,10 +284,10 @@ export default function BookModal({ isOpen, onClose, onSuccess, initialBook = nu
             </div>
 
             {/* Genre & Status */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '1rem' }}>
+            <div className="form-row-2col">
               <div className="form-group">
                 <label className="form-label">Genre *</label>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <div className="genre-input-wrap">
                   <input
                     type="text"
                     required
@@ -298,8 +297,7 @@ export default function BookModal({ isOpen, onClose, onSuccess, initialBook = nu
                     onChange={(e) => setGenre(e.target.value)}
                   />
                   <select
-                    className="form-select"
-                    style={{ width: 'auto', minWidth: '130px' }}
+                    className="form-select genre-select"
                     onChange={(e) => {
                       if (e.target.value) setGenre(e.target.value);
                     }}
@@ -328,7 +326,7 @@ export default function BookModal({ isOpen, onClose, onSuccess, initialBook = nu
             </div>
 
             {/* Pages: Total & Current */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="form-row-2col">
               <div className="form-group">
                 <label className="form-label">Total Pages</label>
                 <input

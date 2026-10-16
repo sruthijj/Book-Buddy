@@ -124,9 +124,10 @@ function App() {
   useEffect(() => {
     const handleResize = () => {
       const w = window.innerWidth
-      if (w < 680) setColumnsPerRow(2)
-      else if (w < 950) setColumnsPerRow(3)
-      else if (w < 1250) setColumnsPerRow(4)
+      if (w < 480) setColumnsPerRow(2)
+      else if (w < 768) setColumnsPerRow(2)
+      else if (w < 1024) setColumnsPerRow(3)
+      else if (w < 1280) setColumnsPerRow(4)
       else setColumnsPerRow(5)
     }
     handleResize()
@@ -221,20 +222,20 @@ function App() {
         {activeView === 'analytics' ? (
           <div>
             {/* Study Desk Header */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+            <div className="study-desk-header">
               <div>
                 <span className="brand-badge" style={{ marginBottom: '0.4rem', display: 'inline-block' }}>
                   STUDY DESK & TELEMETRY
                 </span>
-                <h1 style={{ fontFamily: 'var(--font-heading)', fontSize: '2rem', fontWeight: 800, color: 'var(--text-carved)' }}>
+                <h1 className="study-desk-title">
                   Reading Momentum & Velocity
                 </h1>
-                <p style={{ fontSize: '0.9rem', color: 'var(--text-body)' }}>
+                <p className="study-desk-subtitle">
                   Empirical telemetry of daily reading sessions, volume completion rates, and genre distribution.
                 </p>
               </div>
 
-              <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+              <div className="study-desk-actions">
                 <button
                   type="button"
                   onClick={() => setActiveView('catalog')}
@@ -262,55 +263,27 @@ function App() {
             {/* The Bookshelf Mantelpiece Toolbar */}
             <div className="mantel-controls-bar">
               {/* Top Row: Title, Quick View Switcher & Action CTAs */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <div 
-                    style={{
-                      width: '32px',
-                      height: '32px',
-                      borderRadius: 'var(--radius-sm)',
-                      background: 'linear-gradient(180deg, #996229 0%, #754417 100%)',
-                      color: '#fff3dc',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      border: '1px solid #57310e'
-                    }}
-                  >
+              <div className="mantel-top-row">
+                <div className="mantel-title-group">
+                  <div className="mantel-title-icon">
                     <BookMarked size={18} />
                   </div>
                   <div>
-                    <h1 
-                      style={{ 
-                        fontFamily: 'var(--font-heading)', 
-                        fontSize: '1.45rem', 
-                        fontWeight: 800, 
-                        color: 'var(--text-carved)',
-                        lineHeight: 1.15
-                      }}
-                    >
+                    <h1 className="mantel-heading">
                       {isAuthenticated ? `${user.username}'s Bookshelf` : 'Personal Bookshelf'}
                     </h1>
                   </div>
                 </div>
 
                 {/* View Switcher & CTAs */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
+                <div className="mantel-top-actions">
                   {/* View Switcher: Bookshelf vs Study Desk */}
-                  <div 
-                    style={{
-                      display: 'flex',
-                      background: 'linear-gradient(180deg, #d3a46f 0%, #be874b 100%)',
-                      borderRadius: 'var(--radius-full)',
-                      padding: '2px',
-                      border: '1px solid #8e5824'
-                    }}
-                  >
+                  <div className="view-switcher-pill">
                     <button
                       type="button"
                       onClick={() => setActiveView('catalog')}
                       className={`leather-tab ${activeView === 'catalog' ? 'active' : ''}`}
-                      style={{ borderRadius: 'var(--radius-full)', padding: '0.35rem 0.9rem', fontSize: '0.75rem' }}
+                      style={{ borderRadius: 'var(--radius-full)', padding: '0.35rem 0.85rem', fontSize: '0.75rem' }}
                     >
                       <Layers size={13} />
                       <span>Bookshelf</span>
@@ -319,7 +292,7 @@ function App() {
                       type="button"
                       onClick={() => setActiveView('analytics')}
                       className={`leather-tab ${activeView === 'analytics' ? 'active' : ''}`}
-                      style={{ borderRadius: 'var(--radius-full)', padding: '0.35rem 0.9rem', fontSize: '0.75rem' }}
+                      style={{ borderRadius: 'var(--radius-full)', padding: '0.35rem 0.85rem', fontSize: '0.75rem' }}
                     >
                       <BarChart3 size={13} />
                       <span>Study Desk</span>
@@ -349,14 +322,14 @@ function App() {
               </div>
 
               {/* Middle Row: Collections Filter Tabs & Search Controls */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.85rem', paddingTop: '0.35rem' }}>
+              <div className="mantel-middle-row">
                 {/* Collections Tabs */}
-                <div style={{ display: 'flex', gap: '0.45rem', flexWrap: 'wrap' }}>
+                <div className="mantel-collection-tabs">
                   {[
-                    { id: 'all', label: 'All Volumes', count: counts.all, icon: BookOpen },
-                    { id: 'reading', label: 'Reading Now', count: counts.reading, icon: TrendingUp },
-                    { id: 'completed', label: 'Finished', count: counts.completed, icon: CheckCircle },
-                    { id: 'wishlist', label: 'Wishlist', count: counts.wishlist, icon: Bookmark },
+                    { id: 'all', label: 'All Volumes', shortLabel: 'All', count: counts.all, icon: BookOpen },
+                    { id: 'reading', label: 'Reading Now', shortLabel: 'Reading', count: counts.reading, icon: TrendingUp },
+                    { id: 'completed', label: 'Finished', shortLabel: 'Finished', count: counts.completed, icon: CheckCircle },
+                    { id: 'wishlist', label: 'Wishlist', shortLabel: 'Wishlist', count: counts.wishlist, icon: Bookmark },
                   ].map((tab) => {
                     const Icon = tab.icon
                     const isActive = statusFilter === tab.id
@@ -368,17 +341,9 @@ function App() {
                         onClick={() => setStatusFilter(tab.id)}
                       >
                         <Icon size={12} />
-                        <span>{tab.label}</span>
-                        <span 
-                          style={{
-                            fontSize: '0.68rem',
-                            fontWeight: 800,
-                            padding: '0.05rem 0.35rem',
-                            borderRadius: 'var(--radius-sm)',
-                            backgroundColor: isActive ? 'rgba(0,0,0,0.25)' : 'rgba(0,0,0,0.4)',
-                            color: isActive ? '#fff' : '#edd5b1'
-                          }}
-                        >
+                        <span className="tab-label-full">{tab.label}</span>
+                        <span className="tab-label-short">{tab.shortLabel}</span>
+                        <span className="tab-count-badge">
                           {tab.count}
                         </span>
                       </button>
@@ -387,73 +352,57 @@ function App() {
                 </div>
 
                 {/* Search & Filters */}
-                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
-                  <div style={{ position: 'relative', width: '220px' }}>
+                <div className="mantel-search-filters">
+                  <div className="mantel-search-box">
                     <input
                       type="text"
                       className="parchment-input"
                       placeholder="Search title or author..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      style={{ padding: '0.4rem 0.65rem 0.4rem 2rem', fontSize: '0.8rem' }}
                     />
                     <Search 
-                      size={13} 
-                      style={{ position: 'absolute', left: '0.65rem', top: '50%', transform: 'translateY(-50%)', color: '#8c7b64' }} 
+                      size={14} 
+                      className="mantel-search-icon"
                     />
                   </div>
 
-                  <select
-                    className="parchment-select"
-                    value={genreFilter}
-                    onChange={(e) => setGenreFilter(e.target.value)}
-                    style={{ padding: '0.4rem 1.6rem 0.4rem 0.65rem', fontSize: '0.8rem' }}
-                  >
-                    <option value="all">All Genres</option>
-                    {uniqueGenres.map((g) => (
-                      <option key={g} value={g}>{g}</option>
-                    ))}
-                  </select>
+                  <div className="mantel-selects-group">
+                    <select
+                      className="parchment-select mantel-select"
+                      value={genreFilter}
+                      onChange={(e) => setGenreFilter(e.target.value)}
+                    >
+                      <option value="all">All Genres</option>
+                      {uniqueGenres.map((g) => (
+                        <option key={g} value={g}>{g}</option>
+                      ))}
+                    </select>
 
-                  <select
-                    className="parchment-select"
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
-                    style={{ padding: '0.4rem 1.6rem 0.4rem 0.65rem', fontSize: '0.8rem' }}
-                  >
-                    <option value="updated_at">Recently Read</option>
-                    <option value="title">Title (A-Z)</option>
-                    <option value="rating">Rating (Highest)</option>
-                    <option value="current_page">Progress (Pages)</option>
-                  </select>
+                    <select
+                      className="parchment-select mantel-select"
+                      value={sortBy}
+                      onChange={(e) => setSortBy(e.target.value)}
+                    >
+                      <option value="updated_at">Recently Read</option>
+                      <option value="title">Title (A-Z)</option>
+                      <option value="rating">Rating (Highest)</option>
+                      <option value="current_page">Progress (Pages)</option>
+                    </select>
+                  </div>
                 </div>
               </div>
 
               {/* Bottom Brass Ribbon Summary Ticker */}
-              <div 
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '0.4rem 0.85rem',
-                  background: 'rgba(255, 245, 230, 0.45)',
-                  borderRadius: 'var(--radius-sm)',
-                  border: '1px solid rgba(142, 88, 36, 0.3)',
-                  fontSize: '0.75rem',
-                  fontWeight: 700,
-                  color: '#4a260a',
-                  flexWrap: 'wrap',
-                  gap: '0.5rem'
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flexWrap: 'wrap' }}>
-                  <span>🏛️ <strong>{counts.all}</strong> Volumes Cataloged</span>
-                  <span>📖 <strong>{counts.reading}</strong> Currently Reading</span>
+              <div className="mantel-ticker-row">
+                <div className="mantel-ticker-stats">
+                  <span>🏛️ <strong>{counts.all}</strong> Volumes</span>
+                  <span>📖 <strong>{counts.reading}</strong> Reading</span>
                   <span>🏆 <strong>{counts.completed}</strong> Completed</span>
-                  <span>⚡ <strong>{statsSummary?.total_pages_read || 0}</strong> Total Pages Consumed</span>
+                  <span>⚡ <strong>{statsSummary?.total_pages_read || 0}</strong> Pages Read</span>
                 </div>
-                <div>
-                  <span>★ Reader Satisfaction: <strong>{statsSummary?.average_rating ? `${statsSummary.average_rating.toFixed(1)} / 5.0` : '5.0 / 5.0'}</strong></span>
+                <div className="mantel-ticker-rating">
+                  <span>★ Satisfaction: <strong>{statsSummary?.average_rating ? `${statsSummary.average_rating.toFixed(1)} / 5.0` : '5.0 / 5.0'}</strong></span>
                 </div>
               </div>
             </div>

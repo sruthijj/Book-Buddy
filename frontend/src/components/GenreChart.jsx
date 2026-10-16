@@ -91,7 +91,7 @@ export default function GenreChart() {
           Loading genre distribution...
         </div>
       ) : genresData.length > 0 ? (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', alignItems: 'center' }}>
+        <div className="genre-chart-grid">
           {/* Donut Chart */}
           <div style={{ width: '100%', height: 250, position: 'relative' }}>
             <ResponsiveContainer width="100%" height="100%">

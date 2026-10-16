@@ -189,15 +189,7 @@ export default function AIStudioModal({ isOpen, onClose, books = [], onBookAdded
         </div>
 
         {/* Tab Navigation */}
-        <div 
-          style={{
-            display: 'flex',
-            borderBottom: '1px solid var(--border-subtle)',
-            backgroundColor: 'var(--bg-subtle)',
-            padding: '0 1rem',
-            overflowX: 'auto'
-          }}
-        >
+        <div className="ai-studio-tabs-bar">
           {[
             { id: 'recommend', label: 'Recommendations', icon: BookOpen },
             { id: 'summarize', label: 'Notes Summarizer', icon: FileText },
@@ -211,21 +203,7 @@ export default function AIStudioModal({ isOpen, onClose, books = [], onBookAdded
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.45rem',
-                  padding: '0.75rem 0.85rem',
-                  fontSize: '0.825rem',
-                  fontWeight: 600,
-                  background: 'none',
-                  border: 'none',
-                  borderBottom: isActive ? '2px solid var(--brand-primary)' : '2px solid transparent',
-                  color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)',
-                  cursor: 'pointer',
-                  whiteSpace: 'nowrap',
-                  transition: 'all 150ms ease'
-                }}
+                className={`ai-tab-button ${isActive ? 'active' : ''}`}
               >
                 <Icon size={14} />
                 <span>{tab.label}</span>
@@ -259,7 +237,7 @@ export default function AIStudioModal({ isOpen, onClose, books = [], onBookAdded
           {/* TAB 1: RECOMMENDATIONS */}
           {activeTab === 'recommend' && (
             <div>
-              <div style={{ marginBottom: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div className="ai-studio-tab-header">
                 <div>
                   <h4 style={{ fontSize: '1.05rem', marginBottom: '0.2rem' }}>Personalized Literary Suggestions</h4>
                   <p style={{ fontSize: '0.825rem' }}>
@@ -268,7 +246,7 @@ export default function AIStudioModal({ isOpen, onClose, books = [], onBookAdded
                 </div>
                 <button
                   type="button"
-                  className="btn btn-primary btn-sm"
+                  className="btn btn-primary btn-sm ai-header-action-btn"
                   onClick={handleGetRecommendations}
                   disabled={loading}
                 >
@@ -287,15 +265,7 @@ export default function AIStudioModal({ isOpen, onClose, books = [], onBookAdded
                   {recommendations.map((rec, i) => (
                     <div 
                       key={i} 
-                      className="card" 
-                      style={{ 
-                        padding: '1rem', 
-                        backgroundColor: 'var(--bg-subtle)',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'flex-start',
-                        gap: '1rem'
-                      }}
+                      className="card ai-rec-card"
                     >
                       <div style={{ flex: 1 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
@@ -442,7 +412,7 @@ export default function AIStudioModal({ isOpen, onClose, books = [], onBookAdded
                   </select>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '140px 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                <div className="ai-review-grid">
                   <div className="form-group" style={{ margin: 0 }}>
                     <label className="form-label">Rating</label>
                     <select
@@ -518,7 +488,7 @@ export default function AIStudioModal({ isOpen, onClose, books = [], onBookAdded
                 <div>
                   <div className="form-group">
                     <label className="form-label">Select Active Volume</label>
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <div className="ai-predict-select-row">
                       <select
                         className="form-select"
                         value={selectedBookForPredict}
@@ -532,10 +502,9 @@ export default function AIStudioModal({ isOpen, onClose, books = [], onBookAdded
                       </select>
                       <button
                         type="button"
-                        className="btn btn-primary btn-sm"
+                        className="btn btn-primary btn-sm ai-predict-btn"
                         onClick={handlePredictCompletion}
                         disabled={loading || !selectedBookForPredict}
-                        style={{ minWidth: '130px' }}
                       >
                         {loading ? 'Calculating...' : 'Predict Finish'}
                       </button>
@@ -556,7 +525,7 @@ export default function AIStudioModal({ isOpen, onClose, books = [], onBookAdded
                         <h5 style={{ fontSize: '1rem', fontWeight: 600 }}>Estimated Finish Telemetry</h5>
                       </div>
 
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                      <div className="ai-predict-stats-grid">
                         <div style={{ padding: '0.85rem', backgroundColor: '#FFFFFF', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-subtle)' }}>
                           <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Reading Velocity</span>
                           <div style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--text-primary)' }}>

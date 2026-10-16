@@ -14,19 +14,19 @@ export default function Navbar({ onOpenAuth, onOpenAddBook, onOpenAIStudio }) {
             <BookOpen size={20} strokeWidth={2.4} />
           </div>
           <span className="brand-title">Book Buddy</span>
-          <span className="brand-badge">SANCTUARY</span>
+          <span className="brand-badge brand-badge-desktop">SANCTUARY</span>
         </a>
 
         {/* Right Nav Actions */}
-        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+        <div className="nav-actions">
           {isAuthenticated ? (
             <>
               {/* User Wax Seal Medallion */}
               <div className="user-seal">
                 <div className="user-seal-avatar">
-                  {user?.username ? user.username.charAt(0) : 'U'}
+                  {user?.username ? user.username.charAt(0).toUpperCase() : 'U'}
                 </div>
-                <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--brass-light)' }}>
+                <span className="user-seal-name">
                   {user?.username}
                 </span>
               </div>
@@ -35,12 +35,13 @@ export default function Navbar({ onOpenAuth, onOpenAddBook, onOpenAIStudio }) {
               {onOpenAIStudio && (
                 <button
                   type="button"
-                  className="btn btn-ai btn-sm"
+                  className="btn btn-ai btn-sm nav-btn"
                   onClick={onOpenAIStudio}
                   title="Open AI Reading Companion"
                 >
                   <Sparkles size={14} />
-                  <span>AI Companion</span>
+                  <span className="nav-btn-text">AI Companion</span>
+                  <span className="nav-btn-text-mobile">AI</span>
                 </button>
               )}
 
@@ -48,21 +49,22 @@ export default function Navbar({ onOpenAuth, onOpenAddBook, onOpenAIStudio }) {
               {onOpenAddBook && (
                 <button 
                   type="button" 
-                  className="btn btn-primary btn-sm"
+                  className="btn btn-primary btn-sm nav-btn"
                   onClick={onOpenAddBook}
+                  title="Add Book to Library"
                 >
                   <Plus size={15} />
-                  <span>Add Book</span>
+                  <span className="nav-btn-text">Add Book</span>
+                  <span className="nav-btn-text-mobile">Add</span>
                 </button>
               )}
 
               {/* Sign Out Button */}
               <button
                 type="button"
-                className="btn btn-ghost btn-sm"
+                className="btn btn-ghost btn-sm nav-logout-btn"
                 onClick={logout}
                 title="Sign Out"
-                style={{ padding: '0.45rem', color: 'var(--text-secondary)' }}
               >
                 <LogOut size={16} />
               </button>

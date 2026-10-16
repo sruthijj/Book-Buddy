@@ -203,6 +203,13 @@ export default function BookCard({
 
       {/* Realistic Oval Contact Shadow Cast Directly on the Oak Shelf Ledge */}
       <div className="book-shelf-contact-shadow"></div>
+
+      {/* Carved Shelf Book Nameplate (Identical to Apple iBooks under-volume label) */}
+      <div className="shelf-book-nameplate">
+        <span className="shelf-book-title-clean" title={book.title}>
+          {book.title}
+        </span>
+      </div>
     </div>
   );
 }

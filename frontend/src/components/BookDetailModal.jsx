@@ -79,18 +79,11 @@ export default function BookDetailModal({
         </div>
 
         {/* Modal Body */}
-        <div className="parchment-modal-body" style={{ padding: '1.75rem' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: '1.75rem' }}>
+        <div className="parchment-modal-body">
+          <div className="book-detail-grid">
             {/* Left Column: 3D Book Volume */}
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <div 
-                className="physical-book-3d" 
-                style={{ 
-                  width: '180px', 
-                  height: '260px', 
-                  boxShadow: '0 15px 30px rgba(50, 25, 8, 0.45), inset 3px 0 5px rgba(255,255,255,0.3)' 
-                }}
-              >
+            <div className="book-detail-left-col">
+              <div className="physical-book-3d book-detail-cover-volume">
                 {/* Ribbon */}
                 <div className={`corner-ribbon-badge ${book.status}`}>
                   {isReading ? 'Reading' : (isCompleted ? 'Finished' : 'Wishlist')}

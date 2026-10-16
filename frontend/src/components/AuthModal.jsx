@@ -3,7 +3,7 @@ import { X, Lock, Mail, User, AlertCircle, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export default function AuthModal({ isOpen, onClose }) {
-  const { login, register, authError, setAuthError } = useAuth();
+  const { login, register, authError, setAuthError, demoLogin } = useAuth();
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
 
