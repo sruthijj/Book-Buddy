@@ -2,7 +2,12 @@
 
 An elegant, full-stack personal reading tracking platform built with **FastAPI**, **React 19**, and a classic **3D Skeuomorphic Apple iBooks-inspired Bookshelf UI**. 
 
-Book Buddy allows readers to catalog physical and digital books, track page-by-page reading progress, analyze reading velocity over time through interactive visualizations, record personal reflections, automatically import book metadata via ISBN, and receive intelligent reading insights powered by an AI assistant.
+Book Buddy allows readers to catalog physical and digital books, track page-by-page reading progress, analyze reading velocity over time through interactive visualizations, record personal reflections, automatically import book metadata via natural Title/Author search or ISBN barcode, and receive intelligent reading insights powered by an AI assistant.
+
+> **🚀 Live Web Application**: [https://book-buddy-sigma-flax.vercel.app/](https://book-buddy-sigma-flax.vercel.app/)  
+> **🔑 Evaluator Demo Credentials**:
+> - **Email**: `reviewer@sayonetech.com`
+> - **Password**: `DemoReviewer2026!` *(pre-populated with 15 curated books, reading logs, and telemetry)*
 
 ---
 
@@ -131,7 +136,7 @@ Book Buddy is pre-configured for seamless cloud deployment using **Render** for 
    - **Output Directory**: `dist`
 4. Under **Environment Variables**, add:
    - `VITE_API_BASE_URL`: `https://book-buddy-api.onrender.com` *(your Render backend URL from Step 1)*
-5. Click **Deploy**. Vercel will build and launch your application globally!
+5. Click **Deploy**. Vercel will build and launch your application globally at: [https://book-buddy-sigma-flax.vercel.app/](https://book-buddy-sigma-flax.vercel.app/)
 
 ---
 
@@ -159,15 +164,11 @@ Book Buddy is pre-configured for seamless cloud deployment using **Render** for 
 - **Velocity Metrics**: Computes reading speed in **Pages per Hour** and **Words per Minute (WPM)** based on session duration.
 - **Historical Reading Logs**: View a complete chronological timeline of every reading session per book with date stamps, pages read, and session durations.
 
-### 4. 1-Click Open Library ISBN Auto-Import
-- Enter any standard 10-digit or 13-digit ISBN (e.g., `9780132350884` for *Clean Code*).
-- Automatically queries the Open Library API to populate:
-  - Book Title
-  - Author Name(s)
-  - Total Page Count
-  - Publication Year
-  - High-Resolution Cover Artwork
-  - Book Overview & Synopsis
+### 4. Open Library Auto-Import & Title Search
+- **Title / Author Search**: Instant search by book title, author, or keyword without requiring an ISBN barcode.
+- **ISBN Barcode Lookup**: Direct 1-click import using standard 10-digit or 13-digit ISBNs.
+- **Auto-Populated Metadata**: Populates title, author, total page count, publication year, and high-resolution cover artwork.
+- **Genre Normalization**: Automatically classifies raw catalog tags into the app's 9 clean canonical genres (*Technology*, *Software Engineering*, *Self-Help*, *Fiction*, *Science Fiction*, *Business*, *Psychology*, *Biography*, *History*), keeping the analytics chart pristine.
 
 ### 5. Interactive Analytics & Visualizations (Recharts)
 - **Antique Brass Metric Plaques**:
@@ -176,19 +177,25 @@ Book Buddy is pre-configured for seamless cloud deployment using **Render** for 
   - Completed Volumes & Completion Rate
   - Total Pages Read & Reader Satisfaction
 - **Reading Velocity Timeline Area Chart**: Displays daily pages consumed over time with smooth gradient fills and customized hover tooltips.
-- **Genre Distribution Chart**: Visual breakdown of your reading tastes across genres.
+- **Genre Balance & Distribution Donut Chart**: Visual breakdown of your reading tastes across canonical genres.
 
-### 6. AI Reading Assistant (Dual-Engine Architecture)
-- **Smart Book Recommendations**: Generates tailored suggestions matching your reading tastes, with strict library exclusion and curated offline fallback.
+### 6. AI Reading Assistant (Three-Tier Intelligence Engine)
+- **Three-Tier Recommendations**:
+  1. *Tier 1 (Google Gemini AI)*: Deeply personalized suggestions prompted with your genre profile and an explicit exclusion list of books you already own, with covers resolved dynamically.
+  2. *Tier 2 (Open Library Trending)*: Acclaimed circulating titles in your top genres with cover artwork.
+  3. *Tier 3 (Curated Library Classics)*: Zero-network offline fallback catalog.
+  - Transparent attribution badges (*Google Gemini AI*, *Open Library Trending*, or *Curated Classics*).
 - **Pace Analysis & Completion Forecasting**: Calculates daily velocity from reading logs and forecasts completion dates.
 - **Executive Summaries**: Synthesizes notes and reading progress into high-level recaps.
-- **Thoughtful Review Generator**: Automatically drafts structured reader reflections and reviews based on your rating and progress.
+- **Thoughtful Review Generator**: Automatically drafts structured reader reflections and reviews based on your rating and progress with 1-click clipboard copy.
 
-### 7. Security & User Isolation
-- **JWT Authentication**: Secure user registration and login with JSON Web Tokens.
+### 7. Security, Tenant Isolation & Demo Account
+- **JWT Authentication**: Secure user registration and login with HMAC-SHA256 tokens.
 - **Password Security**: Passwords hashed using industry-standard `bcrypt`.
 - **Strict Data Isolation**: Every book, reading session, and statistic is isolated to the authenticated user via FastAPI's dependency injection (`Depends(get_current_user)`).
-- **Environment Key Enforcement**: Strict requirement of environment secrets preventing token forgery.
+- **Evaluator Demo Account**: Pre-seeded with 14 curated volumes across all reading states, reading logs, and timeline data:
+  - **Email**: `reviewer@sayonetech.com`
+  - **Password**: `DemoReviewer2026!`
 - **Restricted CORS**: Cross-origin policy restricted strictly to local environments and verified application domains.
 
 ---
