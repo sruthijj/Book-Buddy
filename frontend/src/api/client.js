@@ -115,6 +115,10 @@ export const isbnAPI = {
   lookup: (isbn) => api.get(`/isbn/${isbn}`),
 };
 
+export const catalogAPI = {
+  search: (q, limit = 8) => api.get('/catalog/search', { params: { q, limit } }),
+};
+
 export const aiAPI = {
   recommend: (data) => api.post('/ai/recommend', data),
   summarize: (data) => api.post('/ai/summarize', data),

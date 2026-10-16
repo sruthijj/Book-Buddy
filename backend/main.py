@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from .database import engine, Base
-from .routes import auth, books, stats, isbn, ai
+from .routes import auth, books, stats, isbn, ai, catalog
 
 
 @asynccontextmanager
@@ -60,6 +60,7 @@ app.include_router(books.router)
 app.include_router(stats.router)
 app.include_router(isbn.router)
 app.include_router(ai.router)
+app.include_router(catalog.router)
 
 
 @app.get("/", tags=["Health"])

@@ -9,6 +9,7 @@ import httpx
 from fastapi import APIRouter, HTTPException, status
 
 from ..schemas import ISBNBookLookup
+from ..openlibrary import normalize_genre
 
 router = APIRouter(prefix="/api/isbn", tags=["ISBN Lookup"])
 
@@ -74,16 +75,9 @@ async def lookup_isbn(isbn: str):
         # Extract Pages
         total_pages = int(book_data.get("number_of_pages") or 0)
 
-        # Extract Genre / Subject
+        # Extract Genre / Subject with canonical normalization
         subjects = book_data.get("subjects", [])
-        genre = "General"
-        if subjects and isinstance(subjects, list):
-            # Pick first clean subject
-            first_subject = subjects[0]
-            if isinstance(first_subject, dict):
-                genre = first_subject.get("name", "General")
-            elif isinstance(first_subject, str):
-                genre = first_subject
+        genre = normalize_genre(subjects)
 
         # Extract High-Resolution Cover Image URL
         cover_dict = book_data.get("cover", {})

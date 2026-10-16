@@ -162,6 +162,25 @@ class ISBNBookLookup(BaseModel):
     publish_year: Optional[str] = None
 
 
+class CatalogBookItem(BaseModel):
+    """Normalized book candidate returned from Open Library title/author catalog search."""
+    key: Optional[str] = None
+    title: str
+    author: str
+    genre: str
+    total_pages: int
+    cover_image_url: Optional[str] = None
+    publish_year: Optional[str] = None
+    isbn: Optional[str] = None
+
+
+class CatalogSearchResponse(BaseModel):
+    """Catalog search response payload."""
+    results: List[CatalogBookItem]
+    query: str
+    total_found: int
+
+
 # ==========================================
 # AI & PREDICTIVE SCHEMAS
 # ==========================================
